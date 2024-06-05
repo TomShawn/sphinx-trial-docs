@@ -2,7 +2,7 @@
 
 sskskkkdk `fdfdkkk` fkdkdk  dkd `dfkdk`
 
-目录是 [index](/source/index.rst).
+目录是 [目录](index.rst).
 
 ```
 sjsjsks
