@@ -10,6 +10,7 @@ Welcome to HashData Lightning 文档's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   example
 
 
 Indices and tables
