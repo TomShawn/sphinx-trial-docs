@@ -8,10 +8,11 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
+sys.path.append('.')
 
 project = 'HashData Lightning 文档'
 copyright = '2024, HashData'
-author = 'Tom'
+author = 'HashData'
 release = 'v1.5.4'
 
 # -- General configuration ---------------------------------------------------
@@ -20,7 +21,8 @@ release = 'v1.5.4'
 extensions = [
     'sphinx_markdown_tables',
     'myst_parser',
-    'rst2pdf.pdfbuilder'
+    'rst2pdf.pdfbuilder',
+    'sphinx.ext.autosectionlabel'
 ]
 
 source_suffix = {
@@ -50,6 +52,18 @@ latex_elements = {
 \usepackage{amsmath, amssymb}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\renewcommand{\cftsecnumwidth}{2.5em}
+\renewcommand{\cftsubsecnumwidth}{3.5em}
+\renewcommand{\cftsubsubsecnumwidth}{4.5em}
+\titleformat{\chapter}[block]{\LARGE\bfseries}{\thechapter}{1em}{}
+\titleformat{\section}[block]{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}[block]{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}[block]{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\usepackage[document]{ragged2e}
 '''
 }
 
