@@ -41,13 +41,16 @@ pdf_documents = [
 # pdf_invariant = False
 # pdf_real_footnotes = True
 # pdf_use_toc = True
-
+# latex_engine = 'xelatex'
 latex_elements = {
     'preamble': r'''
 \usepackage{longtable}
+\usepackage{xeCJK}
 \usepackage{graphicx}
 \usepackage{amsmath, amssymb}
 \usepackage{booktabs}
 \usepackage{multirow}
 '''
 }
+
+language = 'zh_CN'

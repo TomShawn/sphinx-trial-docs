@@ -1,6 +1,6 @@
 # file1.md
 
-This is a link to [file2](file2.md).
+This is a link to [file2](file2).
 
 ```
 sjsksks
@@ -31,4 +31,7 @@ dkk
 | baz | bim |
 :::
 
-数据时间扫扫看山卡拉咔咔咔咔
+这是一句中文
+这是一句中文
+这是一句中文
+这是一句中文

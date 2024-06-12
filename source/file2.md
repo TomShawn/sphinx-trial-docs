@@ -1,6 +1,6 @@
 # file2.md
 
-This is a link to [file1](file1.md).
+This is a link to [file1](file1).
 
 | Header 1 | Header 2 |
 |----------|----------|
@@ -16,4 +16,7 @@ This is a link to [file1](file1.md).
 | baz | bim |
 :::
 
-数据时间扫扫看山卡拉咔咔咔咔漱口水卡罗拉
+这是一句中文
+这是一句中文
+这是一句中文
+这是一句中文
