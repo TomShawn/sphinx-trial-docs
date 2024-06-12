@@ -12,3 +12,4 @@ Welcome to HashData PDF Link Try's documentation!
 
    file1
    file2
+   table-example

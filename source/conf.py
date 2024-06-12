@@ -9,17 +9,17 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 
-project = 'HashData PDF Link Try'
-copyright = '2024, Tom'
+project = 'HashData Lightning 文档'
+copyright = '2024, HashData'
 author = 'Tom'
-release = '1.5.4'
+release = 'v1.5.4'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'myst_parser',
     'sphinx_markdown_tables',
+    'myst_parser',
     'rst2pdf.pdfbuilder'
 ]
 
@@ -30,9 +30,9 @@ source_suffix = {
 
 master_doc = 'index'
 
-pdf_documents = [
-    ('index', 'output', 'My Project', 'Author Name'),
-]
+# pdf_documents = [
+#     ('index', 'output', 'My Project', 'Author Name'),
+# ]
 
 # 其它 PDF 配置（可选）
 # pdf_stylesheets = ['sphinx', 'kerning', 'a4']
@@ -41,7 +41,7 @@ pdf_documents = [
 # pdf_invariant = False
 # pdf_real_footnotes = True
 # pdf_use_toc = True
-# latex_engine = 'xelatex'
+latex_engine = 'xelatex'
 latex_elements = {
     'preamble': r'''
 \usepackage{longtable}
