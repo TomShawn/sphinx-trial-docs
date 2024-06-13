@@ -3,7 +3,7 @@
 ***********************
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 0
 
    releases/v1.5.4
    releases/v1.5.3

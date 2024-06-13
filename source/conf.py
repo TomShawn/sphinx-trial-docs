@@ -22,7 +22,8 @@ extensions = [
     'sphinx_markdown_tables',
     'myst_parser',
     'rst2pdf.pdfbuilder',
-    'sphinx.ext.autosectionlabel'
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.intersphinx'
 ]
 
 source_suffix = {
@@ -43,6 +44,7 @@ master_doc = 'index'
 # pdf_invariant = False
 # pdf_real_footnotes = True
 # pdf_use_toc = True
+needs_sphinx = '3.0'
 latex_engine = 'xelatex'
 latex_elements = {
     'preamble': r'''
@@ -54,6 +56,7 @@ latex_elements = {
 \usepackage{multirow}
 \usepackage{titlesec}
 \usepackage{tocloft}
+\newcommand{\sectionbreak}{\clearpage}
 \renewcommand{\cftsecnumwidth}{2.5em}
 \renewcommand{\cftsubsecnumwidth}{3.5em}
 \renewcommand{\cftsubsubsecnumwidth}{4.5em}
@@ -64,6 +67,17 @@ latex_elements = {
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 \usepackage[document]{ragged2e}
+
+% Custom LaTeX preamble
+\usepackage{etoolbox}
+\makeatletter
+% Override \sphinxmaketitle to remove section numbering
+\patchcmd{\sphinxmaketitle}
+  {\section{\MakeUppercase{\@title}}}
+  {\chapter*{\MakeUppercase{\@title}}}
+  {}
+  {}
+\makeatother
 '''
 }
 
