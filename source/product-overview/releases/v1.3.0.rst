@@ -1,5 +1,3 @@
-.. _v130:
-
 v1.3.0 发版说明
 ==================================
 
@@ -11,7 +9,7 @@ HashData Lightning v1.3.0
 是一个小版本，新增了若干特性，包含了产品性能/稳定性优化。
 
 新功能
-------
+--------
 
 HashData Lightning 在 v1.3.0 中引入了以下新特性：
 
@@ -71,7 +69,7 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
 各个新特性的详细说明如下：
 
 查询处理
-~~~~~~~~
+~~~~~~~~~
 
 -  支持将查询中的聚集运算下推至靠近数据源。
 
@@ -169,7 +167,7 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
    要启用 AO IndexScan，你需要先通过 ``SET optimizer TO off;`` 关闭 ORCA 优化器，并将系统参数 ``gp_enable_ao_indexscan`` 设为 ``ON``\ 。
 
 集群管理
-~~~~~~~~
+~~~~~~~~~~
 
 -  支持在 Kubernetes 上基于容器化引擎技术部署 HashData Lightning。
 
@@ -201,7 +199,7 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
          -  在 Master 节点宕机时，如果检测到 ETCD 中保存的日志状态为不同步时，Standby 节点不会被自动提升为新的 Master 节点。在该场景下 Master/Standby 节点自动切换会对数据库造成不可预估的影响，因此在这种场景下仍需要用户介入确认问题后，再手动方式切换恢复数据库系统。
 
 数据流
-~~~~~~
+~~~~~~~
 
 -  支持在线创建或重建索引。
 
@@ -210,7 +208,7 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
    使用方法：\ ``CREATE INDEX CONCURRENTLY`` 和 ``REINDEX CONCURRENTLY``\ 。
 
 扩展
-~~~~
+~~~~~~
 
 -  支持基于 Elastic Search 的全文检索引擎。
 
@@ -222,7 +220,7 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
    2. 通过命令行 :literal:`gppkg -i zombodb-1.1-24716-release.gppkg`` 安装全文检索插件。
 
 安全
-~~~~
+~~~~~~
 
 -  支持数据加密组件 ``pgcrypto``\ 。
 
@@ -295,19 +293,19 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
       CREATE EXTENSION
 
 变更说明
---------
+----------
 
 SQL 语法变更说明
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 无
 
 功能变更说明
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 无
 
 参数变更说明
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 -  新增参数 ``gp_enable_agg_pushdown``\ ，用于控制是否启用聚集下推优化，该优化只在关闭优化器的情况下生效。

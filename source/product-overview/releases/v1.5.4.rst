@@ -1,5 +1,5 @@
 v1.5.4 发版说明
-================
+====================
 
 发布日期：2024-06-05
 
@@ -8,7 +8,7 @@ v1.5.4 发版说明
 HashData Lightning v1.5.4 为集群运行和数据库详情新增了可视化监控面板。
 
 新功能
-------
+--------
 
 .. list-table:: 
    :header-rows: 1
@@ -39,7 +39,7 @@ Web Platform
 使用手册 <https://hashdata.feishu.cn/wiki/XBgnwPh7fiOITfkAcoBcO1WqnIg?fromScene=spaceOverview>`__\。
 
 变更说明
---------
+---------
 
 SQL 语法变更说明
 ~~~~~~~~~~~~~~~~
@@ -52,7 +52,7 @@ SQL 语法变更说明
 无
 
 参数变更说明
-------------
+~~~~~~~~~~~~
 
 无
 

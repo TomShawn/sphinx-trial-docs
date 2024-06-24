@@ -1,3 +1,6 @@
+产品概要
+***********************
+
 .. toctree::
    :maxdepth: 0
 
@@ -5,5 +8,5 @@
    product-architecture
    product-scenarios
    comparison-with-gp
-   release-overview
+   release-index
    feature-matrix

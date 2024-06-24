@@ -1,6 +1,4 @@
-.. _hashdata-lightning-v150-发版说明:
-
-HashData Lightning v1.5.0 发版说明
+v1.5.0 发版说明
 ==================================
 
 发布日期：2024-01-02
@@ -9,11 +7,10 @@ HashData Lightning v1.5.0 发版说明
 
 .. note:: 自 v1.5.0 起，原 Cloudberry Database 更名为 HashData Lightning。除本文提及的变更说明外，Cloudberry Database v1.4.0 与 HashData Lightning v1.5.0 无其它兼容性差异。
 
-HashData Lightning v1.5.0
-新增了若干功能，包含了若干产品性能/稳定性优化，修复了若干错误 (bug)。
+HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/稳定性优化，修复了若干错误 (bug)。
 
 新功能
-------
+--------
 
 +----------+----------------------------+----------------------------+
 | 分类     | 功能                       | 用户文档                   |
@@ -101,7 +98,7 @@ HashData Lightning v1.5.0
 各个新功能的详细说明如下：
 
 查询处理
-~~~~~~~~
+~~~~~~~~~~
 
 -  **支持并行创建 AO/AOCO 表和并行刷新物化视图。**
 
@@ -123,7 +120,7 @@ HashData Lightning v1.5.0
    详情参见文档 `HashData Lightning Vectorization 使用说明 <https://hashdata.feishu.cn/docx/WkYcdadAqoB8HCxIS5Jchw1snTc>`__\ 。
 
 集群管理
-~~~~~~~~
+~~~~~~~~~
 
 -  **支持图形化 SQL 编辑器。**
 
@@ -158,7 +155,7 @@ HashData Lightning v1.5.0
    详情参见文档\ `在读写外表时自定义多字符分隔符 <https://hashdata.feishu.cn/docx/B5MRdE1SCoc2XTxiicicoHJAn3c>`__\ 。
 
 存储
-~~~~
+~~~~~~
 
 -  **支持增量物化视图**
 
@@ -173,7 +170,7 @@ HashData Lightning v1.5.0
    详情参见文档\ `在 AO 表上使用唯一索引 <https://hashdata.feishu.cn/docx/IdrwdqkwtocutkxipS8cZvB7n7c>`__\ 。
 
 扩展
-~~~~
+~~~~~~
 
 -  **增强向量相似搜索插件 pgvector。**
 
@@ -206,7 +203,7 @@ HashData Lightning v1.5.0
    详情参见文档\ `加载 Hive 上的数据到 HashData Lightning <https://hashdata.feishu.cn/docx/MpDOdU15BoNoUdxVpE3cfyDmnwc>`__\ 。
 
 安全
-~~~~
+~~~~~~
 
 -  **支持创建和绑定数据库的用户密码策略配置。**
 
@@ -219,10 +216,10 @@ HashData Lightning v1.5.0
    详情参见文档\ `在 HashData Lightning 中配置密码策略 <https://hashdata.feishu.cn/docx/ShVXdu1y7oSoHGxlBibc3fUrnsC>`__\ 。
 
 变更说明
---------
+---------
 
 SQL 语法变更说明
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 ``CREATE MATERIALIZED VIEW`` 新支持 ``INCREMENTAL`` 选项。你可以使用 SQL 命令 ``CREATE INCREMENTAL MATERIALIZED VIEW`` 来创建增量物化视图。完整的语法支持如下：
 
@@ -237,17 +234,17 @@ SQL 语法变更说明
        [ WITH [ NO ] DATA ]
 
 功能变更说明
-~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 无
 
 参数变更说明
-~~~~~~~~~~
+~~~~~~~~~~~~
 
 无
 
 Bug 修复
---------
+----------
 
 -  修复了 AOCO 表内存越界的问题。该 Bug 导致的报错如下所示：
 

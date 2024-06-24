@@ -33,19 +33,9 @@ source_suffix = {
 
 master_doc = 'index'
 
-# pdf_documents = [
-#     ('index', 'output', 'My Project', 'Author Name'),
-# ]
-
-# 其它 PDF 配置（可选）
-# pdf_stylesheets = ['sphinx', 'kerning', 'a4']
-# # pdf_break_level = 1
-# pdf_breakside = 'any'
-# pdf_invariant = False
-# pdf_real_footnotes = True
-# pdf_use_toc = True
 needs_sphinx = '3.0'
 latex_engine = 'xelatex'
+
 latex_elements = {
     'preamble': r'''
 \usepackage{longtable}
@@ -78,7 +68,10 @@ latex_elements = {
   {}
   {}
 \makeatother
+
+\usepackage{multirow}
 '''
 }
 
 language = 'zh_CN'
+autosectionlabel_prefix_document = True
