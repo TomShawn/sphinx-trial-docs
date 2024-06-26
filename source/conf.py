@@ -51,14 +51,26 @@ latex_elements = {
 \renewcommand{\cftsubsecnumwidth}{3.5em}
 \renewcommand{\cftsubsubsecnumwidth}{4.5em}
 
-\titleformat{\chapter}[block]{\LARGE\bfseries}{\thechapter}{1em}{}
-\titleformat{\section}[block]{\Large\bfseries}{\thesection}{1em}{}
-\titleformat{\subsection}[block]{\large\bfseries}{\thesubsection}{1em}{}
-\titleformat{\subsubsection}[block]{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+% \titleformat{\chapter}[block]{\LARGE\bfseries}{\thechapter}{1em}{}
+% \titleformat{\section}[block]{\Large\bfseries}{\thesection}{1em}{}
+% \titleformat{\subsection}[block]{\large\bfseries}{\thesubsection}{1em}{}
+% \titleformat{\subsubsection}[block]{\normalsize\bfseries}{\thesubsubsection}{1em}{}
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 \usepackage[document]{ragged2e}
+\usepackage{titlesec}
 
+% 设置一级标题（section）带有序号
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
+
+% 设置二级标题（subsection）带有序号
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+% 设置三级标题（subsubsection）不带序号
+\titleformat{\subsubsection}[block]{\normalfont\normalsize\bfseries}{}{0pt}{}
+
+% 取消三级以下标题的序号
+\setcounter{secnumdepth}{1}
 
 % Custom LaTeX preamble
 \usepackage{etoolbox}
