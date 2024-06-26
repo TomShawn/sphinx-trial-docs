@@ -50,6 +50,7 @@ latex_elements = {
 \renewcommand{\cftsecnumwidth}{2.5em}
 \renewcommand{\cftsubsecnumwidth}{3.5em}
 \renewcommand{\cftsubsubsecnumwidth}{4.5em}
+
 \titleformat{\chapter}[block]{\LARGE\bfseries}{\thechapter}{1em}{}
 \titleformat{\section}[block]{\Large\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}[block]{\large\bfseries}{\thesubsection}{1em}{}
@@ -57,6 +58,7 @@ latex_elements = {
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 \usepackage[document]{ragged2e}
+
 
 % Custom LaTeX preamble
 \usepackage{etoolbox}

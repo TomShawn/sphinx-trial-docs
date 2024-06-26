@@ -1,899 +1,736 @@
-从对象存储和 HDFS 加载数据
-==========================
+从 Hive 数仓加载数据
+====================
 
-你可以通过数据库扩展 ``datalake_fdw``\ ，来将对象存储（例如 Amazon S3、青云、阿里云、华为云、腾讯云等）、HDFS 存储上的数据、Hive 上的 ORC 表，作为外部数据加载到 HashData Lightning 中，以进行数据查询/访问。
+Hive 数据仓库建立在 Hadoop 集群的 HDFS 上，因此 Hive 数据仓库中的数据也保存在 HDFS 上。HashData Lightning 支持使用扩展 Hive Connector 和 :ref:`datalake_fdw <load-data/load-data-from-oss-and-hdfs:从对象存储和 hdfs 加载数据>`\ ，将 Hive 集群中的表加载到 HashData Lightning 中。
 
-目前，支持加载的数据格式为 CSV、TEXT、ORC、PARQUET。
+Hive Connector 将 Hive 集群中的表加载为 HashData Lightning 的外表，该外表保存了 Hive 表中数据在 HDFS 上的路径。datalake_fdw 读取外表数据，由此将 Hive 上的数据加载到 HashData Lightning。
 
-   注意，\ ``datalake_fdw`` 不支持并行加载数据。
+本文档介绍如何使用 Hive Connector 和 ``datalake_fdw`` 将 Hive 集群中的表加载到 HashData Lightning。
 
-本文介绍如下内容：
+支持的 Hive 文件格式
+--------------------
 
--  安装 ``datalake_fdw`` 扩展到数据库。
--  加载对象存储上的数据到 HashData Lightning。
--  加载 HDFS 上的数据到 HashData Lightning。
+你可以将 TEXT、CSV、ORC、PARQUET、Iceberg、Hudi 格式的文件从 Hive 数仓加载到 HashData Lightning。
 
-有关如何将 Hive 上的表加载到 HashData Lightning，参见\ `从 Hive 数仓加载数据 <https://hashdata.feishu.cn/wiki/CEU6wnMx8imXLskgULxcazcsn6f>`__\ 。
-
-安装扩展
+使用限制 
 --------
 
-要安装 ``datalake_fdw`` 扩展到数据库，执行 SQL 语句 ``CREATE EXTENSION data_fdw;``\ 。
+-  不支持同步 Hive External Table。
+-  不支持同步 Hive Table 统计信息。
+-  HashData Lightning 可以读取 HDFS 上的数据，也可以往 HDFS 写数据，但是写入的数据无法被 Hive 读取。
+
+.. note:: 
+
+   问：HDFS 上的写更新是如何同步到 HashData Lightning 的？是否有限制？
+
+   答：数据实际上还在 HDFS 上，而 Foreign Data Wrapper 只是读取 HDFS
+   上的数据。
+
+操作步骤
+--------
+
+使用 Hive Connector 的大致操作步骤如下：
+
+1. 在 HashData Lightning 节点上创建配置文件，在配置文件中指定目标 Hive 集群和 HDFS 的信息。参见在 HashData Lightning 上创建配置文件。
+2. 创建 Foreign Data Wrapper 和 Hive Connector 插件。
+3. 创建 Server 和 User Mapping。
+4. 将 Hive 对象加载到 HashData Lightning。可以选择加载 Hive 上单张表，也可以加载 Hive 上的数据库。
+
+第 1 步：在 HashData Lightning 上创建配置文件
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+在 HashData Lightning 相关节点上创建配置文件，在配置文件中指定目标 Hive 集群和 HDFS 的信息。
+
+配置 Hive 集群信息
+^^^^^^^^^^^^^^^^^^
+
+Hive Connector 支持 Hive 2.x 和 3.x 版本。你需要在 HashData Lightning 数据仓库的 Coordinator 节点和 Standby 节点创建名为 ``gphive.conf`` 的配置文件。
+
+配置项
+''''''
+
+.. list-table::
+   :header-rows: 1
+   :align: left
+   :widths: 8 20 8
+
+   * - 配置项名
+     - 描述
+     - 默认值
+   * - uris
+     - Hive Metastore Service 监听地址（HMS 的主机名）
+     - /
+   * - auth_method
+     - Hive Metastore Service 认证方法：simple 或 kerberos
+     - simple
+   * - krb_service_principal
+     - Hive Metastore Service 的 Kerberos 认证需要的 service principal。使用 HMS HA 功能时需要将 principal 内的 instance 写成 ``_HOST``，例如 ``hive/_HOST@HASHDATA``。
+     - /
+   * - krb_client_principal
+     - Hive Metastore Service 的 Kerberos 认证需要的 client principal。
+     - /
+   * - krb_client_keytab
+     - Hive Metastore Service 的 Kerberos 认证需要的 client principal 对应的 keytab 文件。
+     - /
+   * - debug
+     - Hive Connector debug flag：true 或 false
+     - false
+
+配置示例
+''''''''
+
+使用以下内容在 HashData Lightning 数据仓库 Coordinator 节点和 Standby 节点创建 ``gphive.conf`` 配置文件，将 ``expample.net:8083`` 替换成对应的 Hive Metastore Service 地址。
+
+.. code:: yaml
+
+   hive-cluster-1: #connector name
+       uris: thrift://example.net:8083
+       auth_method: simple
+
+配置多个 Hive 集群
+''''''''''''''''''
+
+在 ``gphive.conf`` 内新增配置项即可，以下内容表示新增了一个名为 ``hive-cluster-2`` 的需要 Kerberos 验证的 Hive 集群，以及一个名为 ``hive-cluster-3`` 的需要 Kerberos 验证的 Hive HA 集群。
+
+.. code:: yaml
+
+   hive-cluster-1: #simple auth
+       uris: thrift://example1.net:9083
+       auth_method: simple
+
+   hive-cluster-2: #kerberos auth
+       uris: thrift://example2.net:9083
+       auth_method: kerberos
+       krb_service_principal: hive/hashdata@HASHDATA.CN
+       krb_client_principal: user/hashdata@HASHDATA.CN
+       krb_client_keytab: /home/gpadmin/user.keytab
+       
+   hive-cluster-3: #kerberos auth(HMS HA)
+       uris: thrift://hms-primary.example2.net:9083,thrift://hms-standby.example2.net:9083
+       auth_method: kerberos
+       krb_service_principal: hive/_HOST@HASHDATA.CN
+       krb_client_principal: user/hashdata@HASHDATA.CN
+       krb_client_keytab: /home/gpadmin/user.keytab
+
+配置 HDFS 集群信息
+^^^^^^^^^^^^^^^^^^
+
+Hive connector 需要 Hive 集群所在的 HDFS 集群的信息，从而创建外表，并用 ``datalake_fdw`` 插件对其读取。所以，需要在 HashData Lightning 的 Coordinator 节点和 Standby 节点提供名为 ``gphdfs.conf`` 的配置文件。
+
+.. _配置项-1:
+
+配置项
+''''''
+
+.. list-table::
+   :header-rows: 1
+   :align: left
+   :widths: 8 20 8
+
+   * - 配置项名
+     - 描述
+     - 默认值
+   * - hdfs_namenode_host
+     - 配置 HDFS 的 host 信息。如 ``"hdfs://mycluster"``，其中 ``hdfs://`` 可以省略。
+     - /
+   * - hdfs_namenode_port
+     - 配置 HDFS 的端口信息。如果没配置，默认使用 9000。
+     - ``9000``
+   * - hdfs_auth_method
+     - 配置 HDFS 身份验证模式。普通的 HDFS 使用 ``simple``。带有 Kerberos 的使用 ``kerberos``。
+     - /
+   * - krb_principal
+     - Kerberos principal。当 ``hdfs_auth_method`` 设置 Kerberos 时设置。
+     - /
+   * - krb_principal_keytab
+     - 用户生成的 keytab 放置的位置。
+     - /
+   * - hadoop_rpc_protection
+     - 与 HDFS 集群配置文件 ``hdfs-site.xml`` 中的配置一致。
+     - /
+   * - data_transfer_protocol
+     - HDFS 集群配置 Kerberos 时，有两种不同方式: 1. privileged resources 2. SASL RPC data transfer protection and SSL for HTTP。如果是第二种"SASL"的方式，这里需要设置 ``data_transfer_protocol`` 为 ``true``。
+     - /
+   * - is_ha_supported
+     - 用户设置是否使用 ``hdfs-ha``。如果使用设置成 ``true``。不使用设置为 ``false``。默认为 ``false``。
+     - ``false``
+
+
+**hdfs-ha 配置说明**
+
+``is_ha_supported`` 设置为 ``true`` 时程序才会读取 HA 的配置信息。用户将 ``hdfs-ha`` 的配置信息以 key-value 形式放在配置文件中，程序会依次读取所有 HA 的配置信息，所有的 HA 配置都需要与 hdfs 集群中对应的配置一致，并且，配置项的值必须为小写，如为大写，则必须转换为小写再配置。配置如下表所示：
+
+.. list-table:: 配置选项
+   :header-rows: 1
+   :align: left
+   :widths: 8 20 5
+
+   * - 配置项名
+     - 描述
+     - 默认值
+   * - ``dfs.nameservices``
+     - HDFS 集群 NameServices 名字，以下配置中用 ``${service}`` 代替。
+     - /
+   * - ``dfs.ha.namenodes.${service}``
+     - HDFS 中 NameService 为 ``${service}`` 的集群中的 NameNode 列表，多个 NameNode 用逗号隔开，以下配置中一个 NameNode 用 ``${node}`` 代替。
+     - /
+   * - ``dfs.namenode.rpc-address.${service}.${node}``
+     - ``${service}`` 集群中名为 ``${node}`` 的 NameNode 的 rpc 地址。
+     - /
+   * - ``dfs.namenode.http-address.${service}.${node}``
+     - ``${service}`` 集群中名为 ``${node}`` 的 NameNode 的 http 地址。
+     - /
+   * - ``dfs.client.failover.proxy.provider.${service}``
+     - 用于与 ``${service}`` 集群中 Active NameNode 通信的 java class。
+     - /
+
+
+.. _配置示例-2:
+
+配置示例
+''''''''
+
+以下配置文件中包含了三个 HDFS 集群的配置，分别为 ``paa_cluster``\ 、\ ``pab_cluster``\ 、\ ``pac_cluster``\ 。其中，\ ``paa_cluster`` 未使用 Kerberos 认证，未使用 ``hdfs-ha``\ 。\ ``pab_cluster`` 使用 Kerberos 认证，未使用 ``hdfs-ha``\ 。\ ``pac_cluster`` 使用 Kerberos 认证，使用两节点的 ``hdfs-ha`` 集群。
+
+::
+
+   paa_cluster:    
+   # namenode host    
+   hdfs_namenode_host: paa_cluster_master    
+   # name port    
+   hdfs_namenode_port: 9000    
+   # authentication method    
+   hdfs_auth_method: simple 
+   # rpc protection    
+   hadoop_rpc_protection: privacy
+   data_transfer_protocol: true
+
+
+   pab_cluster:    
+   hdfs_namenode_host: pab_cluster_master    
+   hdfs_namenode_port: 9000    
+   hdfs_auth_method: kerberos    
+   krb_principal: gpadmin/hdw-68212b9b-master0@GPADMINCLUSTER2.COM    
+   krb_principal_keytab: /home/gpadmin/hadoop.keytab    
+   hadoop_rpc_protection: privacy    
+   data_transfer_protocol: true
+
+
+   pac_cluster:    
+   hdfs_namenode_host: pac_cluster_master    
+   hdfs_namenode_port: 9000    
+   hdfs_auth_method: kerberos    
+   krb_principal: gpadmin/hdw-68212b9b-master0@GPADMINCLUSTER2.COM    
+   krb_principal_keytab: /home/gpadmin/hadoop.keytab    
+   hadoop_rpc_protection: privacy    
+   is_ha_supported: true    
+   dfs.nameservices: mycluster    
+   dfs.ha.namenodes.mycluster: nn1,nn2    
+   dfs.namenode.rpc-address.mycluster.nn1: 192.168.111.70:8020    
+   dfs.namenode.rpc-address.mycluster.nn2: 192.168.111.71:8020    
+   dfs.namenode.http-address.mycluster.nn1: 192.168.111.70:50070    
+   dfs.namenode.http-address.mycluster.nn2: 192.168.111.71:50070    
+   dfs.client.failover.proxy.provider.mycluster: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailover..
+
+第 2 步：创建 Foreign Data Wrapper 和 Hive Connector 插件
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+在同步前，先加载用于读 HDFS 的插件 datalake_fdw，创建读取外表的 Foreign Data Wrapper。
+
+1. 创建 Foreign Data Wrapper。
+
+   .. code:: sql
+
+      CREATE EXTENSION datalake_fdw;
+
+      CREATE FOREIGN DATA WRAPPER datalake_fdw
+      HANDLER datalake_fdw_handler
+      VALIDATOR datalake_fdw_validator
+      OPTIONS (mpp_execute 'all segments');
+
+2. 调用函数前需要创建 Hive Connector 插件。
+
+   .. code:: sql
+
+      CREATE EXTENSION hive_connector;
+
+第 3 步：创建 Server 和 User Mapping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+创建 Foreign Data Wrapper 和 Hive Connector 后，需要创建 Server 和 User Mapping，示例如下：
 
 .. code:: sql
 
-   CREATE EXTENSION datalake_fdw;
+   SELECT public.create_foreign_server('sync_server', 'gpadmin', 'datalake_fdw', 'hdfs-cluster-1');
 
-使用说明
---------
+以上示例中，\ ``create_foreign_server`` 函数的形式如下：
 
-本节具体说明如何使用 ``datalake_fdw`` 将对象存储以及 HDFS 上的数据加载到 HashData Lightning。
+.. code:: sql
 
-使用 ``datalake_fdw`` 加载数据，需要先创建外部数据封装器（Foreign Data Wrapper，或 FDW），其中需要创建 FDW 服务器以及用户映射等内容。
+   create_foreign_server(serverName, 
+                        userMapName, 
+                        dataWrapName, 
+                        hdfsClusterName);
 
-加载对象存储上的数据
+此函数创建一个指向 HDFS 集群的 server 以及 user mapping，可以供 Hive Connector 创建 foreign table 时使用，datalake_fdw 读取外表时会根据 server 的配置从对应 HDFS 集群中读取数据。
+
+函数中的参数解释如下：
+
+-  ``serverName``\ ：要创建的 server 的名字。
+-  ``userMapName`` ：要在 server 上创建的 user 的名字。
+-  ``dataWrapName``\ ：用于读取 HDFS 数据的 data wrapper 的名字。
+-  ``hdfsClusterName``\ ：Hive 集群所在的 HDFS 集群在配置文件中的名字。
+
+执行此函数相当于执行：
+
+.. code:: sql
+
+   CREATE SERVER serverName FOREIGN DATA WRAPPER dataWrapName OPTIONS (......);
+   CREATE USER MAPPING FOR userMapName SERVER serverName OPTIONS (user 'userMapName');
+
+其中，\ ``OPTIONS (......)`` 内容会从配置文件中名为 ``hdfsClusterName`` 的配置中读取。
+
+第 4 步：将 Hive 上的对象同步到 HashData Lightning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+同步一张 Hive 表
+^^^^^^^^^^^^^^^^
+
+将 Hive 上的一张表同步至 HashData Lightning，示例如下：
+
+.. code:: sql
+
+   -- 在 psql 内同步 Hive 表
+
+   gpadmin=# select public.sync_hive_table('hive-cluster-1', 'mytestdb', 'weblogs', 'hdfs-cluster-1', 'mytestdb.weblogs', 'sync_server');
+    sync_hive_table
+   -----------------
+    t
+   (1 row)
+
+以上示使用了 ``sync_hive_table`` 函数进行同步，该函数的一般形式如下：
+
+.. code:: sql
+
+   sync_hive_table(hiveClusterName, 
+                  hiveDatabaseName,
+                  hiveTableName,
+                  hdfsClusterName, 
+                  destTableName, 
+                  serverName);
+
+   sync_hive_table(hiveClusterName, 
+                  hiveDatabaseName, 
+                  hiveTableName, 
+                  hdfsClusterName, 
+                  destTableName, 
+                  serverName, 
+                  forceSync);
+
+该函数同步一张表到 HashData Lightning，分为非强制与强制两种加载。在 forceSync 为 ``true`` 时强制同步，即在同步表时如果在 HashData Lightning 中已有重名表，则将现有重名表 DROP，再同步。没有 forceSync 参数或 forceSync 为 ``false`` 时视为非强制同步，遇到同名表会报错。
+
+参数解释如下：
+
+-  ``hiveClusterName`` 表示待同步表所在的 Hive 集群在配置文件中的名字。
+-  ``hiveDatabaseName`` 表示待同步的表在 Hive 中所属的数据库名。
+-  ``hiveTableName`` 表示待同步的表名。
+-  ``hdfsClusterName`` 表示 Hive 集群所在的 HDFS 集群在配置文件中的名字。
+-  ``destTableName`` 表示同步到 HashData Lightning 中的表名。
+-  ``serverName`` 表示 ``datalake_fdw`` 插件创建 foreign table 时要使用的 server 的名字。
+-  ``forceSync`` 表示在是否强制同步，强制则为 ``true``\ ，反之为 ``false``\ 。
+
+同步一个 Hive 数据库
+^^^^^^^^^^^^^^^^^^^^
+
+以下示例将 Hive 上的一个数据库同步到 HashData Lightning：
+
+.. code:: sql
+
+   gpadmin=# select public.sync_hive_database('hive-cluster-1', 'default', 'hdfs-cluster-1', 'mytestdb', 'sync_server');
+    sync_hive_database
+   **--------------------
+   ** t
+   (1 row)
+
+以上示例使用了 ``sync_hive_database`` 函数将进行同步。该函数的一般形式如下：
+
+.. code:: sql
+
+   sync_hive_database(hiveClusterName, 
+                     hiveDatabaseName, 
+                     hdfsClusterName, 
+                     destSchemaName, 
+                     serverName);
+    
+   sync_hive_database(hiveClusterName, 
+                     hiveDatabaseName, 
+                     hdfsClusterName, 
+                     destSchemaName, 
+                     serverName,
+                     forceSync);
+
+该函数同步一个 Hive 数据库到 HashData Lightning 的一个 schema 中，和同步一张表时相同，分为非强制与强制两种加载。在 forceSync 为 ``true`` 时强制同步，即在同步表时如果在 HashData Lightning 中已有重名表，则将现有重名表 DROP，再同步。没有 forceSync 参数或 forceSync 为 ``false`` 时视为非强制同步，遇到同名表会报错。
+
+参数解释如下：
+
+-  ``hiveClusterName`` 表示 Hive 集群在配置文件中的名字。
+
+-  ``hiveDatabaseName`` 表示待同步的数据库名。
+
+-  ``hdfsClusterName`` 表示 Hive 集群所在的 hdfs 集群在配置文件中的名字。
+
+-  ``destSchemaName`` 表示同步到 HashData Lightning 中的 schema 名。
+
+-  ``serverName`` 表示 datalake_fdw 插件创建 foreign table 时要使用的 server 的名字。
+
+      **注意**
+
+      以上函数所使用的接口说明如下：
+
+      -  ``sync_hive_table`` 调用 HMS 的 ``thrift getTable`` 接口。
+      -  ``sync_hive_database`` 调用 HMS 的 ``thrift getTables`` 和
+         ``getTable`` 接口。
+
+同步表格示例
+------------
+
+以下示例仅展示在 Hive 上建表和同步至 HashData Lightning 的命令，即仅展示上文中\ :ref:`第 4 步：将 Hive 上的对象同步至 HashData Lightning <load-data/load-data-from-hive:第 4 步：将 hive 上的对象同步到 hashdata lightning>`\ 。完整的操作还应包括该步骤之前的步骤。
+
+同步一张 Hive Text 表
+~~~~~~~~~~~~~~~~~~~~~
+
+1. 在 Hive 上创建以下 Text 表。
+
+   .. code:: sql
+
+      -- 在 Beeline 内创建 Hive 表
+
+      CREATE TABLE weblogs
+      (
+          client_ip           STRING,
+          full_request_date   STRING,
+          day                 STRING,
+          month               STRING,
+          month_num           INT,
+          year                STRING,
+          referrer            STRING,
+          user_agent          STRING
+      ) STORED AS TEXTFILE;
+
+2. 将 Text 表同步至 HashData Lightning。
+
+   .. code:: sql
+
+      -- 在 psql 内同步 Hive 表
+
+      gpadmin=# select public.sync_hive_table('hive-cluster-1', 'mytestdb', 'weblogs', 'hdfs-cluster-1', 'mytestdb.weblogs', 'sync_server');
+      sync_hive_table
+      -----------------
+      t
+      (1 row)
+
+同步一张 Hive ORC 表
 ~~~~~~~~~~~~~~~~~~~~
 
-你可以将 Amazon S3、青云、阿里云、腾讯云等对象存储上的数据加载到 HashData Lightning。步骤如下：
-
-1. 创建外部表封装器 ``FOREIGN DATA WRAPPER``\ 。注意，以下 SQL 语句中暂时没有可选项，你需要准确执行该语句。
+1. 在 Hive 上创建一个 ORC 表。
 
    .. code:: sql
 
-      CREATE FOREIGN DATA WRAPPER datalake_fdw
-      HANDLER datalake_fdw_handler
-      VALIDATOR datalake_fdw_validator 
-      OPTIONS ( mpp_execute 'all segments' );
+      -- 在 Beeline 内创建 Hive 表
+      CREATE TABLE test_all_type
+      (
+          column_a tinyint,
+          column_b smallint,
+          column_c int,
+          column_d bigint,
+          column_e float,
+          column_f double,
+          column_g string,
+          column_h timestamp,
+          column_i date,
+          column_j char(20),
+          column_k varchar(20),
+          column_l decimal(20, 10)
+      ) STORED AS ORC;
 
-2. 创建外部服务器 ``foreign_server``\ 。
-
-   .. code:: sql
-
-      CREATE SERVER foreign_server        
-      FOREIGN DATA WRAPPER datalake_fdw        
-      OPTIONS (host 'xxx', protocol 's3b', isvirtual 'false',ishttps 'false');
-
-   以上 SQL 语句中的选项说明如下：
-
-   .. list-table:: 配置选项
-      :header-rows: 1
-      :widths: auto
-
-      * - 选项名
-        - 描述
-        - 是否可选
-        - 配置项
-        - 默认值
-        - 说明
-      * - ``host``
-        - 设置访问对象存储的主机 host 信息。
-        - 必须设置
-        - /
-        - /
-        - 示例：
-           * 公有云青云的 host：pek3b.qingstor.com
-           * 私有云的 host：192.168.1.1:9000
-      * - ``protocol``
-        - 指定对象存储对应的云平台。
-        - 必须设置
-        - - ``s3b``：即 Amazon Cloud（使用 v2 签名）
-          - ``s3``：即 Amazon Cloud（使用 v4 签名）
-          - ``ali``：即阿里云对象存储
-          - ``qs``：即青云对象存储
-          - ``cos``：即腾讯对象存储
-          - ``huawei``：即华为对象存储
-          - ``ks3``：即 Kingstor 对象存储
-        - /
-        - /
-      * - ``isvirtual``
-        - 按照 virtual-host-style 还是 path-host-style 的方式来解析对象存储的主机。
-        - 可选
-        - - ``true``，即按照 virtual-host-style
-          - ``false``，即按照 path-host-style
-        - ``false``
-        - /
-      * - ``ishttps``
-        - 访问对象存储是否使用 HTTPS。
-        - 可选
-        - - ``true``，即使用 HTTPS
-          - ``false``，即不使用 HTTPS
-        - ``false``
-        - /
-
-3. 创建用户映射。
+2. 将 ORC 表同步至 HashData Lightning：
 
    .. code:: sql
 
-      CREATE USER MAPPING FOR gpadmin SERVER foreign_server 
-      OPTIONS (user 'gpadmin', accesskey 'xxx', secretkey 'xxx');
+      -- 在 psql 内同步表
 
-   以上 SQL 语句中的选项说明如下：
+      gpadmin=# select public.sync_hive_table('hive-cluster-1', 'mytestdb', 'test_all_type', 'hdfs-cluster-1', 'mytestdb.test_all_type', 'sync_server');
+      sync_hive_table
+      -----------------
+      t
+      (1 row)
 
-   .. list-table::
-      :header-rows: 1
+同步一张 Hive ORC 分区表
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-      * - 选项名
-        - 描述
-        - 是否可选
-      * - ``user``
-        - 创建 ``foreign_server`` 所指定的具体用户。
-        - 必须设置
-      * - ``accesskey``
-        - 访问对象存储所需的密钥。
-        - 必须设置
-      * - ``secretkey``
-        - 访问对象存储所需的密钥。
-        - 必须设置
-
-4. 创建外表 ``example``\ 。创建完后，对象存储上的数据已经加载到 HashData Lightning，你可以对该表进行查询。
+1. 在 Hive 上创建一个 ORC 分区表。
 
    .. code:: sql
 
-      CREATE FOREIGN TABLE example(
-      a text,
-      b text
+      -- 在 Beeline 内创建 Hive 表
+
+      CREATE TABLE test_partition_1_int
+      (
+          a tinyint,
+          b smallint,
+          c int,
+          d bigint,
+          e float,
+          f double,
+          g string,
+          h timestamp,
+          i date,
+          j char(20),
+          k varchar(20),
+          l decimal(20, 10)
       )
-      SERVER foreign_server 
-      OPTIONS (filePath '/test/parquet/', compression 'none' , enableCache 'false', format 'parquet');
-
-   以上 SQL 语句中的选项说明如下：
-
-   .. list-table:: 配置选项
-      :header-rows: 1
-      :widths: auto
-
-      * - 选项名
-        - 描述
-        - 是否可选
-        - 配置项
-        - 默认值
-        - 说明
-      * - ``filePath``
-        - 设置目标外表的具体路径。
-        - 必须设置
-        - 路径规则为 `/bucket/prefix`。
-          示例，假设用户访问的 bucket 名为 test-bucket，访问的路径为 bucket/test/orc_file_folder/，假设该路径下有多个文件 `0000_0`、`0001_1`、`0002_2`。
-          那么访问 `0000_0` 文件的 `filePath` 可设置为 `filePath '/test-bucket/test/orc_file_folder/0000_0'`。
-          如果要访问 `test/orc_file_folder/` 下的全部文件，`filePath` 可设置为 `filePath '/test-bucket/test/orc_file_folder/'`。
-        - /
-        - 注意，`filePath` 是按照 `/bucket/prefix/` 格式解析的，错误的格式可能导致错误，例如以下错误格式：
-          * `filePath 'test-bucket/test/orc_file_folder/'`
-          * `filePath '/test-bucket/test/orc_file_folder/0000_0'`
-      * - ``compression``
-        - 设置写的压缩格式。目前支持 snappy, gzip, zstd, lz4 格式。
-        - 可选
-        - - `none`，支持 CSV, ORC, TEXT, PARQUET 格式。
-          - `snappy`，支持 CSV, TEXT, PARQUET 格式。
-          - `gzip`，支持 CSV, TEXT, PARQUET 格式。
-          - `zstd`，支持 PARQUET 格式。
-          - `lz4`，支持 PARQUET 格式。
-        - `none`，表示未压缩。不设置该值同样表示未压缩。
-        - /
-      * - ``enableCache``
-        - 指定是否使用 Gopher 的缓存功能。
-        - 可选
-        - - `true`，即打开 Gopher 缓存。
-          - `false`，即关闭 Gopher 缓存。
-        - `false`
-        - 删除外表并不会自动清理该表的缓存。要清理该外表的缓存，需要手动执行特定的 SQL 函数，例如：`select gp_toolkit.__gopher_cache_free_relation_name(text);`。
-      * - ``format``
-        - FDW 当前支持的文件格式。
-        - 必须设置
-        - - `csv`：可读、可写
-          - `text`：可读、可写
-          - `orc`：可读、可写
-          - `parquet`：可读、可写
-        - /
-        - /
-
-加载 HDFS 上的数据
-~~~~~~~~~~~~~~~~~~
-
-你可以将 HDFS 上的数据加载到 HashData Lightning 中。下文分别介绍如何加载无认证机制的 HDFS 集群数据，以及如何加载带 Kerberos 认证机制的 HDFS 数据。同时，HashData Lightning 还支持加载 HDFS HA 高可用集群的数据，也在下文中介绍。
-
-加载无认证机制的 HDFS 数据
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-以 Simple 模式加载 HDFS 上的数据，即基础的 HDFS 模式，不使用复杂的安全认证机制。详情参见 Hadoop 文档 `Hadoop in Secure Mode <https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SecureMode.html>`__\ 。步骤如下：
-
-1. 创建外部表封装器 ``FOREIGN DATA WRAPPER``\ 。注意，以下 SQL 语句中暂时没有可选项，你需要准确执行该语句。
-
-   .. code:: sql
-
-      CREATE FOREIGN DATA WRAPPER datalake_fdw
-      HANDLER datalake_fdw_handler
-      VALIDATOR datalake_fdw_validator 
-      OPTIONS ( mpp_execute 'all segments' );
-
-2. 创建外部服务器。在这一步，你可以选择为单节点 HDFS，以及为 HA 高可用的 HDFS 创建外部服务器。
-
-   -  为单节点 HDFS 创建外部服务器 ``foreign_server``\ ：
-
-      .. code:: sql
-
-         CREATE SERVER foreign_server FOREIGN DATA WRAPPER datalake_fdw
-         OPTIONS (
-             protocol 'hdfs',
-             hdfs_namenodes '[192.168.178.95](http://192.168.178.95)',
-             hdfs_port '9000',
-             hdfs_auth_method 'simple', 
-             hadoop_rpc_protection 'authentication');
-
-      以上 SQL 语句中的选项说明如下：
-
-      .. list-table:: 配置选项
-         :header-rows: 1
-
-         * - 选项名
-           - 描述
-           - 是否可选
-           - 配置项
-           - 默认值
-           - 说明
-         * - ``protocol``
-           - 指定 Hadoop 平台。
-           - 必须设置
-           - 固定为 `hdfs`，即 Hadoop 平台，不可修改。
-           - `hdfs`
-           - /
-         * - ``hdfs_namenodes``
-           - 指定访问 HDFS 的 namenode 主机。
-           - 必须设置
-           - /
-           - /
-           - 例如 `hdfs_namenodes '192.168.178.95:9000'`
-         * - ``hdfs_auth_method``
-           - 指定访问 HDFS 的认证模式。
-           - 必须设置
-           - - `simple`，即使用 Simple 认证（即无认证）模式访问 HDFS。
-             - `kerberos`，即使用 Kerberos 认证模式访问 HDFS。
-           - /
-           - 如果要以 Simple 模式访问，请将选项值设为 `simple`，即 `hdfs_auth_method 'simple'`。
-         * - ``hadoop_rpc_protection``
-           - 用于配置建立 SASL 连接时的认证机制。此参数设置必须与 HDFS 配置文件 `core-site.xml` 中的 `hadoop.rpc.protection` 项值保持一致。
-           - 必须设置
-           - 有三个可选值，`authentication`、`integrity` 和 `privacy`。详细解释见 Hadoop [关于 `core-site.xml` 的说明文档](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/core-site.xml)。
-           - /
-           - /
-
-   -  为多节点 HA 集群创建外部服务器。HA 集群支持故障节点切换。有关 HDFS 高可用集群的说明，参见 Hadoop 文档 `HDFS High Availability Using the Quorum Journal Manager <https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html>`__\ 。
-
-      要加载 HDFS HA 集群，你可以使用如下模板创建外部服务器：
-
-      .. code:: sql
-
-         CREATE SERVER foreign_server
-                 FOREIGN DATA WRAPPER datalake_fdw
-                 OPTIONS (
-                 protocol 'hdfs',
-                 hdfs_namenodes 'mycluster',
-                 hdfs_auth_method 'simple',
-                 hadoop_rpc_protection 'authentication',
-                 is_ha_supported 'true',
-                 dfs_nameservices 'mycluster',
-                 dfs_ha_namenodes 'nn1,nn2,nn3',
-                 dfs_namenode_rpc_address '192.168.178.95:9000,192.168.178.160:9000,192.168.178.186:9000',
-                 dfs_client_failover_proxy_provider 'org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider');
-
-      在以上 SQL 语句中，\ ``protocol``\ 、\ ``hdfs_namenodes``\ 、\ ``hdfs_auth_method``\ 、\ ``hadoop_rpc_protection`` 的解释同上表单节点。HA 特定的选项解释如下：
-
-      .. list-table:: 配置选项
-         :header-rows: 1
-
-         * - 选项名
-           - 描述
-           - 是否可选
-           - 配置项
-           - 默认值
-           - 说明
-         * - ``is_ha_supported``
-           - 指定是否要访问 HDFS HA 服务，即高可用服务。如果打开则会加载 HA 的配置参数，即本表中下列的参数。
-           - 必须设置
-           - 设为 `true` 即可。
-           - /
-           - /
-         * - ``dfs_nameservices``
-           - 当 `is_ha_supported` 为 `true` 时，访问 HDFS HA 服务的名称。
-           - 如果为 HDFS HA 集群，则必须设置。
-           - 与 HDFS 配置文件 `hdfs-site.xml` 中的 `dfs.ha.namenodes.mycluster` 项保持一致即可。
-           - /
-           - 例如，如果 `dfs.ha.namenodes.mycluster` 为 `cluster`，则将本参数配置为 `dfs_nameservices 'mycluster'`。
-         * - ``dfs_ha_namenodes``
-           - 当 `is_ha_supported` 为 `true` 时，指定 HDFS HA 可访问的节点。
-           - 如果为 HDFS HA 集群，则必须设置。
-           - 与 HDFS 配置文件 `hdfs-site.xml` 中的 `dfs.ha.namenodes.mycluster` 项值保持一致即可。
-           - /
-           - 例如，`dfs_ha_namenodes 'nn1,nn2,nn3'`
-         * - ``dfs_namenode_rpc_address``
-           - 当 `is_ha_supported` 为 `true` 时，指定 HDFS HA 具体的高可用节点 IP 地址。
-           - 如果为 HDFS HA 集群，则必须设置。
-           - 参考 HDFS 的 `hdfs-site.xml` 中的 `dfs.ha_namenodes` 配置，节点地址即为配置文件中的 namenode 地址。
-           - /
-           - 例如，在 `dfs.ha.namenodes.mycluster` 中配置了三个 namenode 分别为 `nn1`、`nn2`、`nn3`，可根据 HDFS 配置文件找到 `dfs.namenode.rpc-address.mycluster.nn1`、`dfs.namenode.rpc-address.mycluster.nn2`、`dfs.namenode.rpc-address.mycluster.nn3` 配置的地址，再填入到字段中。例如：
-             
-             ```
-             dfs_namenode_rpc_address '192.168.178.95:9000,192.168.178.160:9000,192.168.178.186:9000'
-             ```
-         * - ``dfs_client_failover_proxy_provider``
-           - 指定 HDFS HA 是否开启故障转移。
-           - 如果为 HDFS HA 集群，则必须设置。
-           - 设置为默认值即可，即 `dfs_client_failover_proxy_provider 'org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider'`。
-           - /
-           - /
-
-
-3. 创建用户映射。
-
-   .. code:: sql
-
-      CREATE USER MAPPING FOR gpadmin SERVER foreign_server 
-      OPTIONS (user 'gpadmin');
-
-   以上语句中，选项 ``user`` 表示创建 ``foreign_server`` 所指定的具体用户，为必须设置的参数。
-
-4. 创建外表 ``example``\ 。创建完后，对象存储上的数据已经加载到 HashData Lightning，你可以对该表进行查询。
-
-   .. code:: sql
-
-      CREATE FOREIGN TABLE example(
-      a text,
-      b text
+      PARTITIONED BY
+      (
+          m int
       )
-      SERVER foreign_server 
-      OPTIONS (filePath '/test/parquet/', compression 'none' , enableCache 'false', format 'parquet');
+      STORED AS ORC;
+      INSERT INTO test_partition_1_int VALUES (1, 1, 1, 1, 1, 1, '1', '2020-01-01 01:01:01', '2020-01-01', '1', '1', 10.01, 1);
+      INSERT INTO test_partition_1_int VALUES (2, 2, 2, 2, 2, 2, '2', '2020-02-02 02:02:02', '2020-02-01', '2', '2', 11.01, 2);
+      INSERT INTO test_partition_1_int VALUES (3, 3, 3, 3, 3, 3, '3', '2020-03-03 03:03:03', '2020-03-01', '3', '3', 12.01, 3);
+      INSERT INTO test_partition_1_int VALUES (4, 4, 4, 4, 4, 4, '4', '2020-04-04 04:04:04', '2020-04-01', '4', '4', 13.01, 4);
+      INSERT INTO test_partition_1_int VALUES (5, 5, 5, 5, 5, 5, '5', '2020-05-05 05:05:05', '2020-05-01', '5', '5', 14.01, 5);
 
-   以上 SQL 语句中的选项说明如下：
-
-   +----------+----------+----------+----------+----------+----------+
-   | 选项名   | 描述     | 是否可选 | 配置项   | 默认值   | 说明     |
-   +==========+==========+==========+==========+==========+==========+
-   | ``fi     | 设置目标 | 必须设置 | 路       |          | 注意     |
-   | lePath`` | 外表的具 |          | 径规则为 |          | ，\ ``fi |
-   |          | 体路径。 |          | ``       |          | lePath`` |
-   |          |          |          | /bucket/ |          | 是按照   |
-   |          |          |          | prefix`` |          | :lit     |
-   |          |          |          | \ 。示例 |          | eral:`/` |
-   |          |          |          | ，假设用 |          | `bucket/ |
-   |          |          |          | 户访问的 |          | prefix/` |
-   |          |          |          | bucket   |          | 格式解析 |
-   |          |          |          | 名为     |          | 的，\ ** |
-   |          |          |          | ``test-  |          | 错误的格 |
-   |          |          |          | bucket`` |          | 式可能导 |
-   |          |          |          | \ ，访问 |          | 致报错** |
-   |          |          |          | 的路径为 |          | \ ，例如 |
-   |          |          |          | ``t      |          | 以下错误 |
-   |          |          |          | est/orc_ |          | 格式：-  |
-   |          |          |          | file_fol |          | `        |
-   |          |          |          | der/``\  |          | `filePat |
-   |          |          |          | 。假设该 |          | h 'test- |
-   |          |          |          | 路径下有 |          | bucket/t |
-   |          |          |          | 多个文件 |          | est/orc_ |
-   |          |          |          | ``0000   |          | file_fol |
-   |          |          |          | _0``\ 、 |          | der/'``- |
-   |          |          |          | \ ``0001 |          | `        |
-   |          |          |          | _1``\ 、 |          | `filePat |
-   |          |          |          | \ ``0002 |          | h '/test |
-   |          |          |          | _2``\ 。 |          | -bucket/ |
-   |          |          |          | 那么访问 |          | test/orc |
-   |          |          |          | ``       |          | _file_fo |
-   |          |          |          | 0000_0`` |          | lder/'`` |
-   |          |          |          | 文件的   |          |          |
-   |          |          |          | ``fi     |          |          |
-   |          |          |          | lePath`` |          |          |
-   |          |          |          | 可设置为 |          |          |
-   |          |          |          | ``fil    |          |          |
-   |          |          |          | ePath '/ |          |          |
-   |          |          |          | test-buc |          |          |
-   |          |          |          | ket/test |          |          |
-   |          |          |          | /orc_fil |          |          |
-   |          |          |          | e_folder |          |          |
-   |          |          |          | /0000_0' |          |          |
-   |          |          |          | ``\ 。如 |          |          |
-   |          |          |          | 果要访问 |          |          |
-   |          |          |          | `        |          |          |
-   |          |          |          | `test/or |          |          |
-   |          |          |          | c_file_f |          |          |
-   |          |          |          | older/`` |          |          |
-   |          |          |          | 下的     |          |          |
-   |          |          |          | 全部文件 |          |          |
-   |          |          |          | ，\ ``fi |          |          |
-   |          |          |          | lePath`` |          |          |
-   |          |          |          | 可设置为 |          |          |
-   |          |          |          | ``fil    |          |          |
-   |          |          |          | ePath '/ |          |          |
-   |          |          |          | test-buc |          |          |
-   |          |          |          | ket/test |          |          |
-   |          |          |          | /orc_fil |          |          |
-   |          |          |          | e_folder |          |          |
-   |          |          |          | /'``\ 。 |          |          |
-   +----------+----------+----------+----------+----------+----------+
-   | ``compr  | 设       | 可选     | -        | ``       |          |
-   | ession`` | 置写的压 |          | ``none`` | none``\  |          |
-   |          | 缩格式。 |          | \ ，支持 | ，表示未 |          |
-   |          | 目前支持 |          | CSV、ORC | 压缩。不 |          |
-   |          | snappy、 |          | 、TEXT、 | 设置该值 |          |
-   |          | gzip、z  |          | PARQUET  | 同样表示 |          |
-   |          | std、lz4 |          | 格式。-  | 未压缩。 |          |
-   |          | 格式。   |          | ``       |          |          |
-   |          |          |          | snappy`` |          |          |
-   |          |          |          | \ ，支持 |          |          |
-   |          |          |          | CSV      |          |          |
-   |          |          |          | 、TEXT、 |          |          |
-   |          |          |          | PARQUET  |          |          |
-   |          |          |          | 格式。-  |          |          |
-   |          |          |          | ``gzip`` |          |          |
-   |          |          |          | \ ，支持 |          |          |
-   |          |          |          | CSV      |          |          |
-   |          |          |          | 、TEXT、 |          |          |
-   |          |          |          | PARQUET  |          |          |
-   |          |          |          | 格式。-  |          |          |
-   |          |          |          | ``zs     |          |          |
-   |          |          |          | td``\ ， |          |          |
-   |          |          |          | 支持     |          |          |
-   |          |          |          | PARQUET  |          |          |
-   |          |          |          | 格式。-  |          |          |
-   |          |          |          | ``l      |          |          |
-   |          |          |          | z4``\ ， |          |          |
-   |          |          |          | 支持     |          |          |
-   |          |          |          | PARQUET  |          |          |
-   |          |          |          | 格式。   |          |          |
-   +----------+----------+----------+----------+----------+----------+
-   | ``enabl  | 指定     | 可选     | -        | `        | 删除外表 |
-   | eCache`` | 是否使用 |          | ``       | `false`` | 并不会自 |
-   |          | Gopher   |          | true``\  |          | 动清理该 |
-   |          | 的缓     |          | ，即打开 |          | 表的缓存 |
-   |          | 存功能。 |          | Gopher   |          | 。要清理 |
-   |          |          |          | 缓存。-  |          | 该外表的 |
-   |          |          |          | ``f      |          | 缓存，需 |
-   |          |          |          | alse``\  |          | 要手动执 |
-   |          |          |          | ，即关闭 |          | 行特定的 |
-   |          |          |          | Gopher   |          | SQL      |
-   |          |          |          | 缓存。   |          | 函数，例 |
-   |          |          |          |          |          | 如：\ `` |
-   |          |          |          |          |          | select g |
-   |          |          |          |          |          | p_toolki |
-   |          |          |          |          |          | t.__goph |
-   |          |          |          |          |          | er_cache |
-   |          |          |          |          |          | _free_re |
-   |          |          |          |          |          | lation_n |
-   |          |          |          |          |          | ame(text |
-   |          |          |          |          |          | );``\ 。 |
-   +----------+----------+----------+----------+----------+----------+
-   | ``       | FDW      | 必须设置 | -        |          |          |
-   | format`` | 当前     |          | ``csv``  |          |          |
-   |          | 支持的文 |          | \ ：可读 |          |          |
-   |          | 件格式。 |          | ，可写-  |          |          |
-   |          |          |          | ``text`` |          |          |
-   |          |          |          | \ ：可读 |          |          |
-   |          |          |          | ，可写-  |          |          |
-   |          |          |          | ``orc``  |          |          |
-   |          |          |          | \ ：可读 |          |          |
-   |          |          |          | ，可写-  |          |          |
-   |          |          |          | `        |          |          |
-   |          |          |          | `parquet |          |          |
-   |          |          |          | ``\ ：可 |          |          |
-   |          |          |          | 读，可写 |          |          |
-   +----------+----------+----------+----------+----------+----------+
-
-加载带 Kerberos 认证机制的 HDFS 数据
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-如果目标 HDFS 使用了 Kerberos 作为认证方式，你可以参照以下步骤加载 HDFS 上的数据到 HashData Lightning。
-
-1. 创建外部表封装器 ``FOREIGN DATA WRAPPER``\ 。注意，以下 SQL 语句中暂时没有可选项，你需要准确执行该语句。
+2. 将 ORC 分区表同步至 HashData Lightning。
 
    .. code:: sql
 
-      CREATE FOREIGN DATA WRAPPER datalake_fdw
-      HANDLER datalake_fdw_handler
-      VALIDATOR datalake_fdw_validator 
-      OPTIONS ( mpp_execute 'all segments' );
+      -- psql 将 Hive 分区表同步为一个 foreign table
 
-2. 创建外部服务器。在这一步，你可以选择为单节点 HDFS，以及为 HA 高可用的 HDFS 创建外部服务器。
+      gpadmin=# select public.sync_hive_table('hive-cluster-1', 'mytestdb', 'test_partition_1_int', 'hdfs-cluster-1', 'mytestdb.test_partition_1_int', 'sync_server');
+      sync_hive_table
+      -----------------
+      t
+      (1 row)
 
-   -  为单节点 HDFS 创建外部服务器 ``foreign_server``\ ：
-
-      .. code:: sql
-
-         DROP SERVER foreign_server;
-         CREATE SERVER foreign_server
-                 FOREIGN DATA WRAPPER datalake_fdw
-                 OPTIONS (hdfs_namenodes '192.168.3.32',
-                 hdfs_port '9000',
-                 protocol 'hdfs',
-                 auth_method 'kerberos', 
-                 krb_principal 'gpadmin/hdw-68212a9a-master0@GPADMINCLUSTER2.COM',
-                 krb_principal_keytab '/home/gpadmin/hadoop.keytab',
-                 hadoop_rpc_protection 'privacy'
-                 );
-
-      以上 SQL 语句中的选项解释如下：
-
-      +----------+----------+----------+----------+----------+----------+
-      | 选项名   | 描述     | 是否可选 | 配置项   | 默认值   | 说明     |
-      +==========+==========+==========+==========+==========+==========+
-      | ``       | 指定访问 | 必须设置 |          | /        | 例如     |
-      | hdfs_nam | HDFS 的  |          |          |          | ``hdfs_n |
-      | enodes`` | namenode |          |          |          | amenodes |
-      |          | 主机。   |          |          |          |  '192.16 |
-      |          |          |          |          |          | 8.178.95 |
-      |          |          |          |          |          | :9000'`` |
-      +----------+----------+----------+----------+----------+----------+
-      | ``pr     | 指定     | 必须设置 | 固定为   | ``hdfs`` |          |
-      | otocol`` | Hadoop   |          | ``hdfs   |          |          |
-      |          | 平台。   |          | ``\ ，即 |          |          |
-      |          |          |          | Hadoop   |          |          |
-      |          |          |          | 平台。不 |          |          |
-      |          |          |          | 可修改。 |          |          |
-      +----------+----------+----------+----------+----------+----------+
-      | ``auth_  | 指定访问 | 必须设置 | -        | /        |          |
-      | method`` | HDFS     |          | ``ke     |          |          |
-      |          | 的认证   |          | rberos`` |          |          |
-      |          | 模式，即 |          | \ ，使用 |          |          |
-      |          | Kerberos |          | Kerberos |          |          |
-      |          | 认       |          | 认证     |          |          |
-      |          | 证模式。 |          | 模式访问 |          |          |
-      |          |          |          | HDFS。   |          |          |
-      +----------+----------+----------+----------+----------+----------+
-      | `        | 指定     | 必须设置 | 与       | /        |          |
-      | `krb_pri | HDFS     |          | keytab   |          |          |
-      | ncipal`` | keytab   |          | 中       |          |          |
-      |          | 中设置的 |          | 具体的用 |          |          |
-      |          | p        |          | 户信息保 |          |          |
-      |          | rincipal |          | 持一致。 |          |          |
-      |          | 用户。   |          | 你需要查 |          |          |
-      |          |          |          | 看相关用 |          |          |
-      |          |          |          | 户信息， |          |          |
-      |          |          |          | 并设置该 |          |          |
-      |          |          |          | 选项值。 |          |          |
-      +----------+----------+----------+----------+----------+----------+
-      | ``krb_pr | 指定     | 必须设置 | 选项     | /        |          |
-      | incipal_ | HDFS     |          | 值需要与 |          |          |
-      | keytab`` | keytab   |          | HDFS 中  |          |          |
-      |          | 的具     |          | keytab   |          |          |
-      |          | 体路径。 |          | 的实     |          |          |
-      |          |          |          | 际路径保 |          |          |
-      |          |          |          | 持一致。 |          |          |
-      +----------+----------+----------+----------+----------+----------+
-      | `        | 用于     | 必须设置 | 有三个   | /        |          |
-      | `hadoop_ | 配置建立 |          | 可选值， |          |          |
-      | rpc_prot | SASL     |          | \ ``auth |          |          |
-      | ection`` | 连       |          | enticati |          |          |
-      |          | 接时的认 |          | on``\ 、 |          |          |
-      |          | 证机制。 |          | \ ``int  |          |          |
-      |          | 此参数设 |          | egrity`` |          |          |
-      |          | 置必须与 |          | 和       |          |          |
-      |          | HDFS     |          | `        |          |          |
-      |          | 配置文件 |          | `privacy |          |          |
-      |          | `        |          | ``\ 。详 |          |          |
-      |          | `core-si |          | 细解释见 |          |          |
-      |          | te.xml`` |          | Hadoop   |          |          |
-      |          | 中的     |          | `关于 <h |          |          |
-      |          | `        |          | ttps://h |          |          |
-      |          | `hadoop. |          | adoop.ap |          |          |
-      |          | rpc.prot |          | ache.org |          |          |
-      |          | ection`` |          | /docs/cu |          |          |
-      |          | 项保     |          | rrent/ha |          |          |
-      |          | 持一致。 |          | doop-pro |          |          |
-      |          |          |          | ject-dis |          |          |
-      |          |          |          | t/hadoop |          |          |
-      |          |          |          | -common/ |          |          |
-      |          |          |          | core-def |          |          |
-      |          |          |          | ault.xml |          |          |
-      |          |          |          | >`__\ `` |          |          |
-      |          |          |          | core-sit |          |          |
-      |          |          |          | e.xml``\ |          |          |
-      |          |          |          |  `的说明 |          |          |
-      |          |          |          | 文档 <h  |          |          |
-      |          |          |          | ttps://h |          |          |
-      |          |          |          | adoop.ap |          |          |
-      |          |          |          | ache.org |          |          |
-      |          |          |          | /docs/cu |          |          |
-      |          |          |          | rrent/ha |          |          |
-      |          |          |          | doop-pro |          |          |
-      |          |          |          | ject-dis |          |          |
-      |          |          |          | t/hadoop |          |          |
-      |          |          |          | -common/ |          |          |
-      |          |          |          | core-def |          |          |
-      |          |          |          | ault.xml |          |          |
-      |          |          |          | >`__\ 。 |          |          |
-      +----------+----------+----------+----------+----------+----------+
-
--  为多节点 HA 集群创建外部服务器。HA 集群支持故障节点切换。有关 HDFS 高可用集群的说明，参见 Hadoop 文档 `HDFS High Availability Using the Quorum Journal Manager <https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html>`__\ 。
-
-   要加载 HDFS HA 集群，你可以使用如下模板创建外部服务器：
+3. 查看同步结果。
 
    .. code:: sql
 
-      CREATE SERVER foreign_server
-              FOREIGN DATA WRAPPER datalake_fdw
-              OPTIONS (hdfs_namenodes 'mycluster'， 
-              protocol 'hdfs', 
-              auth_method 'kerberos', 
-              krb_principal 'gpadmin/hdw-68212a9a-master0@GPADMINCLUSTER2.COM',
-              krb_principal_keytab '/home/gpadmin/hadoop.keytab', 
-              hadoop_rpc_protection 'privacy',
-              is_ha_supported 'true',
-              dfs_nameservices 'mycluster',
-              dfs_ha_namenodes 'nn1,nn2,nn3',
-              dfs_namenode_rpc_address '192.168.178.95:9000,192.168.178.160:9000,192.168.178.186:9000',
-              dfs_client_failover_proxy_provider 'org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider'
-              );
+      gpadmin=# \d mytestdb.test_partition_1_int;
+                          Foreign table "mytestdb.test_partition_1_int"
+      Column |            Type             | Collation | Nullable | Default | FDW options
+      --------+-----------------------------+-----------+----------+---------+-------------
+      a      | smallint                    |           |          |         |
+      b      | smallint                    |           |          |         |
+      c      | integer                     |           |          |         |
+      d      | bigint                      |           |          |         |
+      e      | double precision            |           |          |         |
+      f      | double precision            |           |          |         |
+      g      | text                        |           |          |         |
+      h      | timestamp without time zone |           |          |         |
+      i      | date                        |           |          |         |
+      j      | character(20)               |           |          |         |
+      k      | character varying(20)       |           |          |         |
+      l      | numeric(20,10)              |           |          |         |
+      m      | integer                     |           |          |         |
+      Server: sync_server
+      FDW options: (filepath '/opt/hadoop/apache-hive-3.1.0-bin/user/hive/warehouse/mytestdb.db/test_partition_1_int', hive_cluster_name 'hive-cluster-1', datasource 'mytestdb.test_partition_1_int', hdfs_cluster_name 'hdfs-cluster-1', enablecache 'true', transactional 'false', partitionkeys 'm', format 'orc')
 
-   在以上 SQL 语句中，\ ``hdfs_namenodes``\ 、\ ``protocol``\ 、\ ``auth_method``\ 、\ ``krb_principal``\ 、\ ``krb_principal_keytab``\ 、\ ``hadoop_rpc_protection`` 的解释同上表单节点。HA 特定的选项解释如下：
+.. _同步一个-hive-数据库-1:
 
-   +----------+----------+----------+----------+--------+----------+
-   | 选项名   | 描述     | 是否可选 | 配置项   | 默认值 | 说明     |
-   +==========+==========+==========+==========+========+==========+
-   | ``i      | 指定是   | 必须设置 | 设为     | /      |          |
-   | s_ha_sup | 否要访问 |          | ``true`` |        |          |
-   | ported`` | HDFS HA  |          | 即可。   |        |          |
-   |          | 服务     |          |          |        |          |
-   |          | ，即高可 |          |          |        |          |
-   |          | 用服务。 |          |          |        |          |
-   |          | 如果打开 |          |          |        |          |
-   |          | 则会加载 |          |          |        |          |
-   |          | HA       |          |          |        |          |
-   |          | 的       |          |          |        |          |
-   |          | 配置参数 |          |          |        |          |
-   |          | ，即本表 |          |          |        |          |
-   |          | 中下面行 |          |          |        |          |
-   |          | 的参数。 |          |          |        |          |
-   +----------+----------+----------+----------+--------+----------+
-   | ``df     | 当       | 如果为   | 与 HDFS  | /      | 例       |
-   | s_namese | ``i      | HDFS HA  | 配置文件 |        | 如，如果 |
-   | rvices`` | s_ha_sup | 集       | `        |        | ``dfs.   |
-   |          | ported`` | 群，则必 | `hdfs-si |        | ha.namen |
-   |          | 为       | 须设置。 | te.xml`` |        | odes.myc |
-   |          | ``true`` |          | 中的     |        | luster`` |
-   |          | 时，访问 |          | ``dfs.   |        | 为       |
-   |          | HDFS HA  |          | ha.namen |        | ``clust  |
-   |          | 服务     |          | odes.myc |        | er``\ ， |
-   |          | 的名称。 |          | luster`` |        | 则将本参 |
-   |          |          |          | 项保持一 |        | 数配置为 |
-   |          |          |          | 致即可。 |        | ``df     |
-   |          |          |          |          |        | s_namese |
-   |          |          |          |          |        | rvices ' |
-   |          |          |          |          |        | mycluste |
-   |          |          |          |          |        | r'``\ 。 |
-   +----------+----------+----------+----------+--------+----------+
-   | ``df     | 当       | 如果为   | 与 HDFS  | /      | 例       |
-   | s_ha_nam | ``i      | HDFS HA  | 配置文件 |        | 如，\ `` |
-   | enodes`` | s_ha_sup | 集       | `        |        | dfs_ha_n |
-   |          | ported`` | 群，则必 | `hdfs-si |        | amenodes |
-   |          | 为       | 须设置。 | te.xml`` |        |  'nn1,nn |
-   |          | ``true`` |          | 中的     |        | 2,nn3'`` |
-   |          | 时，指定 |          | ``dfs.   |        |          |
-   |          | HDFS HA  |          | ha.namen |        |          |
-   |          | 可访问   |          | odes.myc |        |          |
-   |          | 的节点。 |          | luster`` |        |          |
-   |          |          |          | 项       |        |          |
-   |          |          |          | 值保持一 |        |          |
-   |          |          |          | 致即可。 |        |          |
-   +----------+----------+----------+----------+--------+----------+
-   | ``df     | 当       | 如果为   | 参考     | /      | 例如，在 |
-   | s_nameno | ``i      | HDFS HA  | HDFS 的  |        | ``dfs.   |
-   | de_rpc_a | s_ha_sup | 集       | `        |        | ha.namen |
-   | ddress`` | ported`` | 群，则必 | `hdfs-si |        | odes.myc |
-   |          | 为       | 须设置。 | te.xml`` |        | luster`` |
-   |          | ``true`` |          | 中的     |        | 中配     |
-   |          | 时，指定 |          | ``df     |        | 置了三个 |
-   |          | HDFS HA  |          | s_ha_nam |        | namenode |
-   |          | 具体的高 |          | enodes`` |        | 分别为   |
-   |          | 可用节点 |          | 配置，   |        | ``n      |
-   |          | IP       |          | 节点地址 |        | n1``\ 、 |
-   |          | 地址。   |          | 即为配置 |        | \ ``nn2` |
-   |          |          |          | 文件中的 |        | `\ 、\ ` |
-   |          |          |          | namenode |        | `nn3``\  |
-   |          |          |          | 地址。   |        | ，可根据 |
-   |          |          |          |          |        | HDFS     |
-   |          |          |          |          |        | 配置     |
-   |          |          |          |          |        | 文件找到 |
-   |          |          |          |          |        | ``dfs.   |
-   |          |          |          |          |        | namenode |
-   |          |          |          |          |        | .rpc-add |
-   |          |          |          |          |        | ress.myc |
-   |          |          |          |          |        | luster.n |
-   |          |          |          |          |        | n1``\ 、 |
-   |          |          |          |          |        | ``dfs.   |
-   |          |          |          |          |        | namenode |
-   |          |          |          |          |        | .rpc-add |
-   |          |          |          |          |        | ress.myc |
-   |          |          |          |          |        | luster.n |
-   |          |          |          |          |        | n2``\ 、 |
-   |          |          |          |          |        | ``       |
-   |          |          |          |          |        | dfs.name |
-   |          |          |          |          |        | node.rpc |
-   |          |          |          |          |        | -address |
-   |          |          |          |          |        | .myclust |
-   |          |          |          |          |        | er.nn3`` |
-   |          |          |          |          |        | 配置     |
-   |          |          |          |          |        | 的地址， |
-   |          |          |          |          |        | 再填入到 |
-   |          |          |          |          |        | 字段中。 |
-   |          |          |          |          |        | 例如：\  |
-   |          |          |          |          |        |  ``sqldf |
-   |          |          |          |          |        | s_nameno |
-   |          |          |          |          |        | de_rpc_a |
-   |          |          |          |          |        | ddress ' |
-   |          |          |          |          |        | 192.168. |
-   |          |          |          |          |        | 178.95:9 |
-   |          |          |          |          |        | 000,192. |
-   |          |          |          |          |        | 168.178. |
-   |          |          |          |          |        | 160:9000 |
-   |          |          |          |          |        | ,192.168 |
-   |          |          |          |          |        | .178.186 |
-   |          |          |          |          |        | :9000'`` |
-   +----------+----------+----------+----------+--------+----------+
-   | ``dfs_   | 指定     | 如果为   | 设置     |        |          |
-   | client_f | HDFS HA  | HDFS HA  | 为默认值 |        |          |
-   | ailover_ | 是       | 集       | 即可，即 |        |          |
-   | proxy_pr | 否开启故 | 群，则必 | ``dfs_   |        |          |
-   | ovider`` | 障转移。 | 须设置。 | client_f |        |          |
-   |          |          |          | ailover_ |        |          |
-   |          |          |          | proxy_pr |        |          |
-   |          |          |          | ovider ' |        |          |
-   |          |          |          | org.apac |        |          |
-   |          |          |          | he.hadoo |        |          |
-   |          |          |          | p.hdfs.s |        |          |
-   |          |          |          | erver.na |        |          |
-   |          |          |          | menode.h |        |          |
-   |          |          |          | a.Config |        |          |
-   |          |          |          | uredFail |        |          |
-   |          |          |          | overProx |        |          |
-   |          |          |          | yProvide |        |          |
-   |          |          |          | r'``\ 。 |        |          |
-   +----------+----------+----------+----------+--------+----------+
+同步一个 Hive 数据库
+~~~~~~~~~~~~~~~~~~~~
 
-3. 创建用户映射。
+1. 将 Hive 数据库同步至 HashData Lightning。
 
    .. code:: sql
 
-      CREATE USER MAPPING FOR gpadmin SERVER foreign_server 
-      OPTIONS (user 'gpadmin');
+      gpadmin=# select public.sync_hive_database('hive-cluster-1', 'default', 'hdfs-cluster-1', 'mytestdb', 'sync_server');
+      sync_hive_database
+      **--------------------
+      ** t
+      (1 row)
 
-   以上语句中，选项 ``user`` 表示创建 ``foreign_server`` 所指定的具体用户，为必须设置的参数。
-
-4. 创建外表 ``example``\ 。创建完后，对象存储上的数据已经加载到 HashData Lightning，你可以对该表进行查询。
+2. 查看结果。
 
    .. code:: sql
 
-      CREATE FOREIGN TABLE example(
-      a text,
-      b text
+      gpadmin=# \d mytestdb.*
+                                      List of relations
+      Schema  |             Name              |       Type        |  Owner  | Storage
+      ----------+-------------------------------+-------------------+---------+---------
+      mytestdb | test_all_type                 | foreign table     | gpadmin |
+      mytestdb | weblogs                       | foreign table     | gpadmin |
+      mytestdb | test_csv_default_option       | foreign table     | gpadmin |
+      mytestdb | test_partition_1_int          | foreign table     | gpadmin |
+      (4 rows)
+
+同步 Iceberg 和 Hudi 格式的表
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Apache Iceberg（下称 Iceberg）是一个开源的表格式，旨在改进大数据的存储、访问和处理。它为大规模数据仓库场景设计，提供了高效的数据存储和查询优化。Apache Hudi（下称 Hudi）是一个为数据湖提供高效存储管理的库，其目标是简化增量数据处理和流数据处理。
+
+Hive 最初设计时并没有考虑到现代数据湖的一些需求，如实时数据处理和更细粒度的更新控制，但 Iceberg 和 Hudi 提供了与 Hive 兼容的接口。Iceberg 和 Hudi 为现代大数据平台提供了高效、灵活的数据管理能力，与传统的 Hive 数仓相比，它们在处理大规模数据集时可以提供更高的性能和更先进的数据管理特性。通过与 Hive 的集成，它们能够提供一条平滑的升级路径，帮助用户从传统的数据仓库架构过渡到更现代、更高效的数据平台解决方案。
+
+Hive Connector 和 datalake_fdw 支持将 Iceberg 和 Hudi 格式的表加载到 HashData Lightning 中。
+
+加载 Iceberg 表
+^^^^^^^^^^^^^^^
+
+1. 在 Hive 上创建 Iceberg 格式的表（以 Hive 2.3.2 为例）。
+
+   .. code:: sql
+
+      CREATE DATABASE icebergdb;
+      USE icebergdb;
+
+      CREATE TABLE iceberg_table1 (
+          id int,
+          name string,
+          age int,
+          address string
+      ) STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler';
+
+2. 在 HashData Lightning 中创建对应的外部表，并进行导入。
+
+   .. code:: sql
+
+      CREATE FOREIGN TABLE iceberg_table1 (
+          id int,
+          name text,
+          age int,
+          address text
       )
-      SERVER foreign_server 
-      OPTIONS (filePath '/test/parquet/', compression 'none' , enableCache 'false', format 'parquet');
+      server sync_server
+      OPTIONS (filePath 'icebergdb.iceberg_table1', catalog_type 'hive', server_name 'hive-cluster-1', hdfs_cluster_name 'hdfs-cluster-1', table_identifier 'icebergdb.iceberg_table1', format 'iceberg');
 
-   以上 SQL 语句中的选项说明如下：
+   建表参数如下：
 
-   +----------+----------+----------+----------+----------+----------+
-   | 选项名   | 描述     | 是否可选 | 配置项   | 默认值   | 说明     |
-   +==========+==========+==========+==========+==========+==========+
-   | ``fi     | 设置目标 | 必须设置 | 路       |          | 注意     |
-   | lePath`` | 外表的具 |          | 径规则为 |          | ，\ ``fi |
-   |          | 体路径。 |          | ``       |          | lePath`` |
-   |          |          |          | /bucket/ |          | 是按照   |
-   |          |          |          | prefix`` |          | :lit     |
-   |          |          |          | \ 。示例 |          | eral:`/` |
-   |          |          |          | ，假设用 |          | `bucket/ |
-   |          |          |          | 户访问的 |          | prefix/` |
-   |          |          |          | bucket   |          | 格式解析 |
-   |          |          |          | 名为     |          | 的，\ ** |
-   |          |          |          | ``test-  |          | 错误的格 |
-   |          |          |          | bucket`` |          | 式可能导 |
-   |          |          |          | \ ，访问 |          | 致报错** |
-   |          |          |          | 的路径为 |          | \ ，例如 |
-   |          |          |          | ``t      |          | 以下错误 |
-   |          |          |          | est/orc_ |          | 格式：-  |
-   |          |          |          | file_fol |          | `        |
-   |          |          |          | der/``\  |          | `filePat |
-   |          |          |          | 。假设该 |          | h 'test- |
-   |          |          |          | 路径下有 |          | bucket/t |
-   |          |          |          | 多个文件 |          | est/orc_ |
-   |          |          |          | ``0000   |          | file_fol |
-   |          |          |          | _0``\ 、 |          | der/'``- |
-   |          |          |          | \ ``0001 |          | `        |
-   |          |          |          | _1``\ 、 |          | `filePat |
-   |          |          |          | \ ``0002 |          | h '/test |
-   |          |          |          | _2``\ 。 |          | -bucket/ |
-   |          |          |          | 那么访问 |          | test/orc |
-   |          |          |          | ``       |          | _file_fo |
-   |          |          |          | 0000_0`` |          | lder/'`` |
-   |          |          |          | 文件的   |          |          |
-   |          |          |          | ``fi     |          |          |
-   |          |          |          | lePath`` |          |          |
-   |          |          |          | 可设置为 |          |          |
-   |          |          |          | ``fil    |          |          |
-   |          |          |          | ePath '/ |          |          |
-   |          |          |          | test-buc |          |          |
-   |          |          |          | ket/test |          |          |
-   |          |          |          | /orc_fil |          |          |
-   |          |          |          | e_folder |          |          |
-   |          |          |          | /0000_0' |          |          |
-   |          |          |          | ``\ 。如 |          |          |
-   |          |          |          | 果要访问 |          |          |
-   |          |          |          | `        |          |          |
-   |          |          |          | `test/or |          |          |
-   |          |          |          | c_file_f |          |          |
-   |          |          |          | older/`` |          |          |
-   |          |          |          | 下的     |          |          |
-   |          |          |          | 全部文件 |          |          |
-   |          |          |          | ，\ ``fi |          |          |
-   |          |          |          | lePath`` |          |          |
-   |          |          |          | 可设置为 |          |          |
-   |          |          |          | ``fil    |          |          |
-   |          |          |          | ePath '/ |          |          |
-   |          |          |          | test-buc |          |          |
-   |          |          |          | ket/test |          |          |
-   |          |          |          | /orc_fil |          |          |
-   |          |          |          | e_folder |          |          |
-   |          |          |          | /'``\ 。 |          |          |
-   +----------+----------+----------+----------+----------+----------+
-   | ``compr  | 设       | 可选     | -        | ``       |          |
-   | ession`` | 置写的压 |          | ``none`` | none``\  |          |
-   |          | 缩格式。 |          | \ ，支持 | ，表示未 |          |
-   |          | 目前支持 |          | CSV、ORC | 压缩。不 |          |
-   |          | snappy、 |          | 、TEXT、 | 设置该值 |          |
-   |          | gzip、z  |          | PARQUET  | 同样表示 |          |
-   |          | std、lz4 |          | 格式。-  | 未压缩。 |          |
-   |          | 格式。   |          | ``       |          |          |
-   |          |          |          | snappy`` |          |          |
-   |          |          |          | \ ，支持 |          |          |
-   |          |          |          | CSV      |          |          |
-   |          |          |          | 、TEXT、 |          |          |
-   |          |          |          | PARQUET  |          |          |
-   |          |          |          | 格式。-  |          |          |
-   |          |          |          | ``gzip`` |          |          |
-   |          |          |          | \ ，支持 |          |          |
-   |          |          |          | CSV      |          |          |
-   |          |          |          | 、TEXT、 |          |          |
-   |          |          |          | PARQUET  |          |          |
-   |          |          |          | 格式。-  |          |          |
-   |          |          |          | ``zs     |          |          |
-   |          |          |          | td``\ ， |          |          |
-   |          |          |          | 支持     |          |          |
-   |          |          |          | PARQUET  |          |          |
-   |          |          |          | 格式。-  |          |          |
-   |          |          |          | ``l      |          |          |
-   |          |          |          | z4``\ ， |          |          |
-   |          |          |          | 支持     |          |          |
-   |          |          |          | PARQUET  |          |          |
-   |          |          |          | 格式。   |          |          |
-   +----------+----------+----------+----------+----------+----------+
-   | ``enabl  | 指定     | 可选     | -        | `        | 删除外表 |
-   | eCache`` | 是否使用 |          | ``       | `false`` | 并不会自 |
-   |          | Gopher   |          | true``\  |          | 动清理该 |
-   |          | 的缓     |          | ，即打开 |          | 表的缓存 |
-   |          | 存功能。 |          | Gopher   |          | 。要清理 |
-   |          |          |          | 缓存。-  |          | 该外表的 |
-   |          |          |          | ``f      |          | 缓存，需 |
-   |          |          |          | alse``\  |          | 要手动执 |
-   |          |          |          | ，即关闭 |          | 行特定的 |
-   |          |          |          | Gopher   |          | SQL      |
-   |          |          |          | 缓存。   |          | 函数，例 |
-   |          |          |          |          |          | 如：\ `` |
-   |          |          |          |          |          | select g |
-   |          |          |          |          |          | p_toolki |
-   |          |          |          |          |          | t.__goph |
-   |          |          |          |          |          | er_cache |
-   |          |          |          |          |          | _free_re |
-   |          |          |          |          |          | lation_n |
-   |          |          |          |          |          | ame(text |
-   |          |          |          |          |          | );``\ 。 |
-   +----------+----------+----------+----------+----------+----------+
-   | ``       | FDW      | 必须设置 | -        |          |          |
-   | format`` | 当前     |          | ``csv``  |          |          |
-   |          | 支持的文 |          | \ ：可读 |          |          |
-   |          | 件格式。 |          | ，可写-  |          |          |
-   |          |          |          | ``text`` |          |          |
-   |          |          |          | \ ：可读 |          |          |
-   |          |          |          | ，可写-  |          |          |
-   |          |          |          | ``orc``  |          |          |
-   |          |          |          | \ ：可读 |          |          |
-   |          |          |          | ，可写-  |          |          |
-   |          |          |          | `        |          |          |
-   |          |          |          | `parquet |          |          |
-   |          |          |          | ``\ ：可 |          |          |
-   |          |          |          | 读，可写 |          |          |
-   +----------+----------+----------+----------+----------+----------+
+   -  ``catalog_type``\ ：填写 ``hive`` 或者 ``hadoop``\ 。
+   -  ``filePath``
+  
+      -  如果 ``catalog_type`` 是 ``hive``\ ，则填写 ``<数据库名>.<表名>``\ 。
+      -  如果 ``catalog_type`` 是 ``hadoop``\ ，则填写表在 HDFS 中的路径，例如 ``/user/hadoop/hudidata/``\ 。
+  
+   -  ``table_identifier``\ ：填写 ``<数据库名>.<表名>``\ 。
+   -  ``format``\ ：填写 ``iceberg``\ 。
+
+加载 Hudi 表
+^^^^^^^^^^^^
+
+1. 在 Spark 上创建 Hudi 格式的表，以 Spark 2.4.4 为例。
+
+   .. code:: sql
+
+      CREATE DATABASE hudidb;
+      USE hudidb;
+
+      _------ hudi_table1 ------_
+      CREATE TABLE hudi_table1 (
+          id int,
+          name string,
+          age int,
+          address string
+      ) using hudi;
+
+2. 在 HashData Lightning 中创建对应的外部表。
+
+   .. code:: sql
+
+      CREATE FOREIGN TABLE hudi_table1 (
+          id int,
+          name text,
+          age int,
+          address text
+      )
+      server sync_server
+      OPTIONS (filePath 'hudidb.hudi_table1', catalog_type 'hive', server_name 'hive-cluster-1', hdfs_cluster_name 'hdfs-cluster-1', table_identifier 'hudidb.hudi_table1', format 'hudi');
+
+数据类型对照
+------------
+
+以下为 Hive 集群上表数据类型，与 HashData Lightning
+表数据类型的一一对应关系。
+
+========= ==================
+Hive      HashData Lightning
+========= ==================
+binary    bytea
+tinyint   smallint
+smallint  smallint
+int       int
+bigint    bigint
+float     float4
+double    double precision
+string    text
+timestamp timestamp
+date      date
+char      char
+varchar   varchar
+decimal   decimal
+========= ==================
+
+已知问题
+--------
+
+HashData Lightning Coordinator 和 Standby
+节点在一台机器上时，由于使用的是一套配置，会出现端口占用的情况，导致
+``dlagent`` 进程不断重启，CPU 占用率高。
+
+解决方案
+~~~~~~~~
+
+1. 在 Standby 节点工作目录
+   (``/home/gpadmin/workspace/cbdb_dev/gpAux/gpdemo/datadirs/standby/``)
+   下创建 ``config`` 文件夹。
+
+2. 在 ``config`` 目录下创建配置文件
+   ``application.properties``\ ，修改端口 ``server.port``\ ，修改日志名
+   ``logging.file.name``\ ，修改日志路径 ``logging.file.path``\ 。
+
+   ``application.properties`` 文件如下：
+
+   ::
+
+      # Expose health, info, shutdown, metrics, and prometheus endpoints by default
+      # 1. health: returns the status of the application {"status":"UP"}
+      # 2. info: returns information about the build {"build":{"version":"X.X.X","artifact":"dlagent","name":"dlagent","group":"hashdata.cn","time":"timestamp"}}
+      # 3. shutdown: allows shutting down the application
+      # 4. metrics: shows ‘metrics’ information for the application
+      # 5. prometheus: exposes metrics in a format that can be scraped by a Prometheus server
+      management.endpoints.web.exposure.include=health,info,shutdown,metrics,prometheus
+      management.endpoint.shutdown.enabled=true
+      management.endpoint.health.probes.enabled=true
+      # common tags applied to all metrics
+      management.metrics.tags.application=dlagent
+      # dlagent-specific metrics
+      dlagent.metrics.partition.enabled=true
+      dlagent.metrics.report-frequency=1000
+      spring.profiles.active=default
+      server.port=5888
+      # Whitelabel error options
+      server.error.include-message=always
+      server.error.include-stacktrace=on_param
+      server.error.include-exception=false
+      server.server-header=DlAgent Server
+      server.max-http-header-size=1048576
+      # tomcat specific
+      server.tomcat.threads.max=200
+      server.tomcat.accept-count=100
+      server.tomcat.connection-timeout=5m
+      server.tomcat.mbeanregistry.enabled=true
+      dlagent.tomcat.max-header-count=30000
+      dlagent.tomcat.disable-upload-timeout=false
+      dlagent.tomcat.connection-upload-timeout=5m
+      # timeout (ms) for the request - 1 day
+      spring.mvc.async.request-timeout=86400000
+      dlagent.task.thread-name-prefix=dlagent-response-
+      dlagent.task.pool.allow-core-thread-timeout=false
+      dlagent.task.pool.core-size=8
+      dlagent.task.pool.max-size=200
+      dlagent.task.pool.queue-capacity=0
+      # logging
+      dlagent.log.level=info
+      logging.config=classpath:log4j2-dlagent.xml
+      logging.file.name=${MASTER_DATA_DIRECTORY:/home/gpadmin/workspace/cbdb_dev/gpAux/gpdemo/datadirs/standby/demoDataDir-1}/pg_log/dlagent.log
+      logging.file.path=${MASTER_DATA_DIRECTORY:/home/gpadmin/workspace/cbdb_dev/gpAux/gpdemo/datadirs/standby/demoDataDir-1}/pg_log
