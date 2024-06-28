@@ -1,7 +1,7 @@
 可视化部署
 ==========
 
-`HashData Lightning Web Platform <https://hashdata.feishu.cn/wiki/XBgnwPh7fiOITfkAcoBcO1WqnIg>`__ 是一个部署和管理 HashData Lightning 集群的控制台工具，提供简单直观的用户界面。相较于手动部署的方式，可视化部署更为简单直观，你只需要按照界面提示进行操作即可，无需理解复杂的命令和配置文件，从而使部署更加高效。你可以使用 HashData Lightning Web Platform 部署 HashData Lightning。
+HashData Lightning Web Platform 是一个部署和管理 HashData Lightning 集群的控制台工具，提供简单直观的用户界面。相较于手动部署的方式，可视化部署更为简单直观，你只需要按照界面提示进行操作即可，无需理解复杂的命令和配置文件，从而使部署更加高效。你可以使用 HashData Lightning Web Platform 部署 HashData Lightning。
 
 适用版本说明
 ------------
@@ -261,14 +261,3 @@ Kylin V10 SP1 或 SP2 x86_64 和 AArch64
       ./cbuiserver
 
 -  如果节点机器在此前进行过可视化部署，你希望在这些机器上重新安装 RPM 包，请在安装前，在每台机器上先执行 ``sudo pkill cbuiserver``\ ，再清空 ``/usr/local/cloudberry-db`` 目录。
-
-后续操作
---------
-
-通过可视化方法部署好一套 HashData Lightning 集群后，你可以通过界面进行如下集群操作：
-
--  `查看和操作数据库中的对象 <https://hashdata.feishu.cn/wiki/TniPwZ9aoizHVNkxVzwcchQXnOg>`__\ （自 v1.5.0 起）
--  `在内置的网页编辑器中编写和执行 SQL 语句 <https://hashdata.feishu.cn/wiki/TniPwZ9aoizHVNkxVzwcchQXnOg?fromScene=spaceOverview#doxcnXwH42jnJ8HydLjtUfWw6Jc>`__\ （自 v1.5.0 起）
--  `查看集群、性能以及数据库的监控指标 <https://hashdata.feishu.cn/wiki/Y58SwRouuifPt0kRAxacxEGRn4g>`__\ （自 v1.5.4 起）
-
-详情参见 `HashData Lightning Web Platform 手册 <https://hashdata.feishu.cn/wiki/XBgnwPh7fiOITfkAcoBcO1WqnIg?fromScene=spaceOverview>`__\ 。
