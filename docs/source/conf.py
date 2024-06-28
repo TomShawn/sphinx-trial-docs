@@ -19,7 +19,6 @@ release = 'v1.5.4'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx_markdown_tables',
     'myst_parser',
     'rst2pdf.pdfbuilder',
     'sphinx.ext.autosectionlabel',
