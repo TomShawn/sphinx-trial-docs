@@ -18,9 +18,14 @@ release = 'v1.5.4'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+# extensions = [
+#     'myst_parser',
+#     'rst2pdf.pdfbuilder',
+#     'sphinx.ext.autosectionlabel',
+#     'sphinx.ext.intersphinx'
+# ]
+
 extensions = [
-    'myst_parser',
-    'rst2pdf.pdfbuilder',
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.intersphinx'
 ]
