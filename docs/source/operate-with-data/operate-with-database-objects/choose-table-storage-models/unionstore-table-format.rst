@@ -75,12 +75,12 @@ UnionStore 是面向 Heap 表及其索引的新存储引擎，结合 HashData Li
 
     \begingroup
     \renewcommand{\arraystretch}{1.5} % 调整表格行间距
-    \fontsize{6pt}{7pt}\selectfont % 设置表格字体大小为更小
+    \fontsize{5pt}{6pt}\selectfont % 设置表格字体大小为更小
 
 .. list-table::
    :header-rows: 1
    :align: left
-   :widths: 15 20 8 8 15
+   :widths: 15 20 8 8 18
 
    * - 配置参数名
      - 描述说明
@@ -96,22 +96,22 @@ UnionStore 是面向 Heap 表及其索引的新存储引擎，结合 HashData Li
      - UnionStore 的租户 ID。
      - 空
      - 是
-     - \texttt{unionstore.tenant_id='176349c483c0578faca41101fa70e19f'}
+     - ``unionstore.tenant_id='176349c483c0578faca41101fa70e19f'``
    * - ``unionstore.timeline_id``
      - UnionStore 租户的时间线 ID。
      - 空
      - 是
-     - \texttt{unionstore.timeline_id='30cf96abf49fbb6f6c9712fc71c83d40'}
+     - ``unionstore.timeline_id='30cf96abf49fbb6f6c9712fc71c83d40'``
    * - ``unionstore.safekeepers``
      - 日志组件的 IP 和端口，默认是三副本。用来与日志服务建立连接以及持久化日志。需要与安装部署 UnionStore 时你所填写的保持一致。
      - 空
      - 是
-     - \texttt{unionstore.safekeepers='127.0.0.1:5454,127.0.0.1:5455,127.0.0.1:5457'}
+     - ``unionstore.safekeepers='127.0.0.1:5454,127.0.0.1:5455,127.0.0.1:5457'``
    * - ``unionstore.pageserver_connstring``
      - UnionStore PageServer 组件的 IP/PORT。用来与 PageServer 建立连接，读取 Page 及其他一些数据。需要与安装部署 UnionStore 时你所填写的保持一致。
      - 空
      - 是
-     - \texttt{unionstore.pageserver_connstring='postgresql://no_user:@127.0.0.1:64000'}
+     - ``unionstore.pageserver_connstring='postgresql://no_user:@127.0.0.1:64000'``
 
 .. raw:: latex
 
