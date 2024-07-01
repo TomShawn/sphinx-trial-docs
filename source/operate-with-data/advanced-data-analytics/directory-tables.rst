@@ -110,6 +110,7 @@ Directory Table 定位于存储、管理和分析非结构化数据对象。Dire
 
 
    .. tip:: 
+      :name: 提示
 
       如果你在创建表空间时，遇到 ``directory ... does not exist`` 的报错，你需要为集群配置 ``shared_preload_libraries`` 并导入到对象存储。例如先执行 ``gpconfig -c shared_preload_libraries -v 'dfs_tablespace'``\ ，再执行 ``gpstop -ra`` 重启集群。
 

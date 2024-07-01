@@ -139,7 +139,7 @@ REINDEX CONCURRENTLY
 
 要查看这个表的 ``INVALID`` 索引，可使用 ``\d`` 选项：
 
-.. code:: sql
+.. code:: shell
 
    cloudberry=# \d tab
                    Table "public.tab"
