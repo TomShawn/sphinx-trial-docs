@@ -12,3 +12,4 @@ HashData Lightning v1.5.4 文档
    load-data/load-data-index
    operate-with-data/operate-with-data-index
    optimize-performance/optimize-performance-index
+   manage-system/manage-system-index
