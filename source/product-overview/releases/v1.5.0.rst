@@ -104,14 +104,14 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 
    支持使用 ``CREATE TABLE AS`` 语句并行创建 Append-Optimized (AO) 表和 Append-Optimized Column Oriented (AOCO) 表，同时支持并行刷新基于该表的物化视图，从而加速建表和物化视图刷新。
 
-   详情参见文档\ `并行创建 AO/AOCO 表与刷新物化视图 <https://hashdata.feishu.cn/docx/EzuRddMhFoxxDExSHdpcfOrmnAe>`__\ 。
+   详情参见文档\ :ref:`optimize-performance/create-ao-aoco-tables-in-parallel-and-refresh-mtv:并行创建 ao/aoco 表与刷新物化视图`\ 。
 
 -  **支持自动使用物化视图进行查询优化**，即在查询规划阶段自动使用物化视图来计算部分或全部查询 (AQUMV)。这一功能使用场景：
 
    -  大数据量的聚合查询：对于需要从数百万条记录中进行聚合的查询，AQUMV 能显著减少查询时间。
    -  频繁更新的大表：在数据频繁更新的环境中，使用 IMV 可以确保查询结果的实时性和准确性。
 
-   详情参见文档\ `使用自动物化视图进行查询优化 <https://hashdata.feishu.cn/docx/ZocDdLMUkoRbEUx3x21cZDG3nwe>`__\ 。
+   详情参见文档\ :ref:`optimize-performance/use-auto-mtv-for-query-optimization:使用自动物化视图进行查询优化`\ 。
 
 -  **提升向量化插件的可用性并支持更多算子**。
 

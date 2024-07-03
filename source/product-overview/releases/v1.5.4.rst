@@ -12,13 +12,14 @@ HashData Lightning v1.5.4 为集群运行和数据库详情新增了可视化监
 
 .. list-table:: 
    :header-rows: 1
+   :align: left
 
    * - 分类
      - 功能
      - 用户文档
    * - 运维监控
      - Web Platform 新增集群运行和数据库的可视化监控面板。
-     - :ref:`使用 Web Platform 查看监控数据 <一般特性对比>`
+     - :ref:`manage-system/web-platform-monitoring/web-platform-monitoring-index:使用 web platform 查看集群监控数据`
 
 自 v1.5.4 起，HashData Lightning Web Platform 提供了可视化数据监控面板，可接近实时展示数据库集群的总体运行状态、各主机及节点的状态、表及存储资源状态等数据。用户可通过监控面板掌握集群各项数据指标，快速发现异常状态或不合理资源配置，采取措施及时修复和优化。
 
@@ -31,12 +32,7 @@ HashData Lightning v1.5.4 为集群运行和数据库详情新增了可视化监
 .. image:: ../../images/web-platform-dashboard.png
    :alt: Web Platform
 
-注意：对于当前版本，只有通过\ `可视化部署方式 <../product-architecture>`__\ 部署的新集群，才能访问监控面板。详情参考\ `使用
-Web Platform
-查看监控数据 <https://hashdata.feishu.cn/wiki/Y58SwRouuifPt0kRAxacxEGRn4g>`__\。
-
-完整的 Web Platform 使用手册，见 `Web Platform
-使用手册 <https://hashdata.feishu.cn/wiki/XBgnwPh7fiOITfkAcoBcO1WqnIg?fromScene=spaceOverview>`__\。
+注意：对于当前版本，只有通过\ :ref:`deploy-guides/physical-deploy/visualized-deploy:可视化部署`\ 的新集群，才能访问监控面板。详情参考\ :ref:`manage-system/web-platform-monitoring/web-platform-monitoring-index:使用 web platform 查看集群监控数据`\ 。
 
 变更说明
 ---------
@@ -71,17 +67,3 @@ Bug 修复
 - 修复多级关联查询使用 ``array_agg``/``json_agg`` 时出现 ``segfault`` 或错误结果的问题。
 - 修复某些情况下 ``explain(locus)`` 中的 ``locus`` 为 NULL 时导致错误的问题。
 - 修复 Motion 中某些变量内存未初始化导致的越界错误。
-
-.. 使用 `xx` 请参见 :doc:`../product-architecture`
-
-.. :ref:`监控 <架构介绍>`
-
-
-.. .. table:: Grid Table Demo
-..    :name: table-gridtable
-
-   .. +----------+-----------------------------------------------------+------------------------+
-   .. | 分类     | 功能                                                | 用户文档               |
-   .. +==========+=====================================================+========================+
-   .. | 运维监控 | Web Platform 新增集群运行和数据库的可视化监控面板。 | :ref:`监控 <使用场景>` |
-   .. +----------+-----------------------------------------------------+------------------------+
