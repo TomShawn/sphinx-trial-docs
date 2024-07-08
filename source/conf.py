@@ -36,6 +36,7 @@ master_doc = 'index'
 needs_sphinx = '3.0'
 language = 'zh_CN'
 autosectionlabel_prefix_document = True
+templates_path = ['_templates']
 
 # -- HTML configuration ---------------------------------------------------
 
