@@ -13,7 +13,7 @@
 
 2. 进入首页，或点击左侧导航栏的\ **概览**\ ，即可查看集群概览信息。
 
-   .. image:: ../../images/web-platform-dashboard.png
+   .. image:: /images/web-platform-dashboard.png
 
    +--------------+------------------------------------------------------+
    | 展示项       | 描述                                                 |
@@ -26,7 +26,7 @@
    | 磁盘使用情况 | 分别展示 Coordinator 和 Segment 的磁盘使用情况。     |
    +--------------+------------------------------------------------------+
 
-   .. image:: ../../images/web-platform-dashboard-metrics.png
+   .. image:: /images/web-platform-dashboard-metrics.png
 
    +------------+--------------------------------------------------------+
    | 展示项     | 描述                                                   |

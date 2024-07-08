@@ -30,7 +30,7 @@ HashData Lightning Web Platform （下称 Web Platform）是一个部署和管�
 
 你可以查看创建的工作表列表，并按照最近修改时间进行排序。
 
-.. image:: ../images/web-platform-worksheets.png
+.. image:: /images/web-platform-worksheets.png
 
 创建工作表
 ~~~~~~~~~~
@@ -44,7 +44,7 @@ HashData Lightning Web Platform （下称 Web Platform）是一个部署和管�
 
 一个工作表目前包括两个主要部分，在左侧展示数据库对象的树状目录，在右侧展示 SQL 查询编辑器。
 
-.. image:: ../images/web-platform-sql-editor.png
+.. image:: /images/web-platform-sql-editor.png
 
 查看数据库中的表对象
 ~~~~~~~~~~~~~~~~~~~~
@@ -106,9 +106,9 @@ Web Platform 在工作表中提供了 SQL 查询编辑器。在选择数据库�
 -  登出：点击页面右上角的用户头像 |icon5|，选择退出登录。
 -  切换语言：点击页面右上角语言切换按钮 |icon6|，目前支持中英文切换。
 
-.. |icon1| image:: ../images/icons/web-platform-formatting.png
-.. |icon2| image:: ../images/icons/web-platform-search-replace.png
-.. |icon3| image:: ../images/icons/web-platform-execute.png
-.. |icon4| image:: ../images/icons/web-platform-download-result.png
-.. |icon5| image:: ../images/icons/web-platform-logout.png
-.. |icon6| image:: ../images/icons/web-platform-languages.png
+.. |icon1| image:: /images/icons/web-platform-formatting.png
+.. |icon2| image:: /images/icons/web-platform-search-replace.png
+.. |icon3| image:: /images/icons/web-platform-execute.png
+.. |icon4| image:: /images/icons/web-platform-download-result.png
+.. |icon5| image:: /images/icons/web-platform-logout.png
+.. |icon6| image:: /images/icons/web-platform-languages.png

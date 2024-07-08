@@ -15,7 +15,7 @@
 查看集群整体运行状态
 --------------------
 
-.. image:: ../../images/web-platform-view-cluster-status-1.png
+.. image:: /images/web-platform-view-cluster-status-1.png
 
 **集群指标**\ 面板展示了集群的 CPU、内存、磁盘 I/O 和网络繁忙程度等数据。
 
@@ -69,7 +69,7 @@
 
 **集群状态**\ 面板展示了主机和 Segment 节点的运行状态和各项指标。你可在页面左上角选择查看\ **主机指标**\ 或 **Segment 状态**\ 。
 
-.. image:: ../../images/web-platform-view-cluster-status-2.png
+.. image:: /images/web-platform-view-cluster-status-2.png
 
 主机指标
 ~~~~~~~~

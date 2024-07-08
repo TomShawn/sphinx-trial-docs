@@ -13,7 +13,7 @@
 
 2. 点击左侧导航栏的\ **存储概览**\ ，即可查看存储概览信息。
 
-   .. image:: ../../images/web-platform-view-storage-info-1.png
+   .. image:: /images/web-platform-view-storage-info-1.png
 
 3. 单击页面上方的 **Coordinato**\ r 和 **Segment** 卡片，可以分别查看 **Coordinator** 和 **Segmen**\ t 节点对应机器的硬盘使用情况。
 
@@ -32,4 +32,4 @@
 
 4. 单击\ **主机名**\ 左侧的小三角，可以展开查看不同挂载点下的硬盘使用情况。
 
-   .. image:: ../../images/web-platform-view-storage-info-2.png
+   .. image:: /images/web-platform-view-storage-info-2.png

@@ -12,88 +12,56 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 新功能
 --------
 
-+----------+----------------------------+----------------------------+
-| 分类     | 功能                       | 用户文档                   |
-+==========+============================+============================+
-| 查询处理 | 支持并行创建 AO/AOCO       | `并行创建 AO/AOCO          |
-|          | 表和并行刷新物化视图       | 表与                       |
-|          |                            | 刷新物化视图 <https://has  |
-|          |                            | hdata.feishu.cn/docx/EzuRd |
-|          |                            | dMhFoxxDExSHdpcfOrmnAe>`__ |
-+----------+----------------------------+----------------------------+
-|          | 支持自                     | `使用自动物化视图          |
-|          | 动使用物化视图进行查询优化 | 进行查询优化 <https://has  |
-|          |                            | hdata.feishu.cn/docx/ZocDd |
-|          |                            | LMUkoRbEUx3x21cZDG3nwe>`__ |
-+----------+----------------------------+----------------------------+
-|          | 升级向量化支持更多算子     | `HashData Lightning        |
-|          |                            | Vectorization              |
-|          |                            | 使用说明 <https://has      |
-|          |                            | hdata.feishu.cn/docx/WkYcd |
-|          |                            | adAqoB8HCxIS5Jchw1snTc>`__ |
-+----------+----------------------------+----------------------------+
-| 集群管理 | 支持图形化 SQL 编辑器      | `HashData Lightning Web    |
-|          |                            | Platform                   |
-|          |                            | 说明文档 <https://hashd    |
-|          |                            | ata.feishu.cn/docx/QBT2dwP |
-|          |                            | R4omACOxOi7acP4bfnih#JPOid |
-|          |                            | qZuDoXxVwx9H9tckqBpnGc>`__ |
-+----------+----------------------------+----------------------------+
-|          | 支持部署单计算节点的集群   | `单节点部署 HashData       |
-|          |                            | Lightning <https://has     |
-|          |                            | hdata.feishu.cn/docx/IpFzd |
-|          |                            | wlPLo87JDxjJSHc1DOgnJh>`__ |
-+----------+----------------------------+----------------------------+
-|          | 支                         | `gpdemo                    |
-|          | 持使用命令行“一键”部署集群 | 快捷                       |
-|          |                            | 部署使用文档 <https://has  |
-|          |                            | hdata.feishu.cn/docx/J7iOd |
-|          |                            | L9kmoRKvDxrCD2cdE2znxh>`__ |
-+----------+----------------------------+----------------------------+
-| 功能     | 支持多字节分隔符           | `在读写外表时自定义        |
-|          |                            | 多字符分隔符 <https://has  |
-|          |                            | hdata.feishu.cn/docx/B5MRd |
-|          |                            | E1SCoc2XTxiicicoHJAn3c>`__ |
-+----------+----------------------------+----------------------------+
-| 存储     | 支持增量物化视图           | `增量物化                  |
-|          |                            | 视图说明文档 <https://has  |
-|          |                            | hdata.feishu.cn/docx/F5gQd |
-|          |                            | 0xdCok3EOx704scXUtRn6N>`__ |
-+----------+----------------------------+----------------------------+
-|          | 支持在 AO 表上使用唯一索引 | `在 AO                     |
-|          |                            | 表上                       |
-|          |                            | 使用唯一索引 <https://has  |
-|          |                            | hdata.feishu.cn/docx/Idrwd |
-|          |                            | qkwtocutkxipS8cZvB7n7c>`__ |
-+----------+----------------------------+----------------------------+
-| 扩展     | 增强 pgvector              | `pgvecter                  |
-|          | 功能以支持索引             | 使用文档 <https://has      |
-|          |                            | hdata.feishu.cn/docx/PFHkd |
-|          |                            | 0DAHodn9OxPn6sci8aZnDf>`__ |
-+----------+----------------------------+----------------------------+
-|          | ZomboDB 提供 HTTPS         | `ZomboDB                   |
-|          | 版安装包以支持 SSL         | 使用手册 <https://has      |
-|          |                            | hdata.feishu.cn/docx/R8Hld |
-|          |                            | Ru0wo8aJLxV3gGcbN6Snpd>`__ |
-+----------+----------------------------+----------------------------+
-|          | 支持从对象存储、Hadoop     | `加载对象存储和 HDFS       |
-|          | 平台加载数据               | 上的数据到 HashData        |
-|          |                            | Lightning <https://has     |
-|          |                            | hdata.feishu.cn/docx/Scv7d |
-|          |                            | nbXVokCh9xOliJcJPnmnpb>`__ |
-+----------+----------------------------+----------------------------+
-|          | 支持从 Hive                | `加载 Hive 上的数据到      |
-|          | 数据仓库加载数据           | HashData                   |
-|          |                            | Lightning <https://has     |
-|          |                            | hdata.feishu.cn/docx/MpDOd |
-|          |                            | U15BoNoUdxVpE3cfyDmnwc>`__ |
-+----------+----------------------------+----------------------------+
-| 安全     | 支                         | `在 HashData Lightning     |
-|          | 持登录错误输入密码次数检查 | 中                         |
-|          |                            | 配置密码策略 <https://has  |
-|          |                            | hdata.feishu.cn/docx/ShVXd |
-|          |                            | u1y7oSoHGxlBibc3fUrnsC>`__ |
-+----------+----------------------------+----------------------------+
+.. list-table::
+   :header-rows: 1
+   :align: left
+
+   * - 分类
+     - 功能
+     - 用户文档
+   * - 查询处理
+     - 支持并行创建 AO/AOCO 表和并行刷新物化视图
+     - :ref:`optimize-performance/create-ao-aoco-tables-in-parallel-and-refresh-mtv:并行创建 ao/aoco 表与刷新物化视图`
+   * - 查询处理
+     - 支持自动使用物化视图进行查询优化
+     - :ref:`optimize-performance/use-auto-mtv-for-query-optimization:使用自动物化视图进行查询优化`
+   * - 查询处理
+     - 升级向量化支持更多算子
+     - :ref:`operate-with-data/advanced-data-analytics/vectorization-queries:vectorization 向量化查询计算`
+   * - 集群管理
+     - 支持图形化 SQL 编辑器
+     - :ref:`operate-with-data/view-and-operate-db-objects-using-web-platform:在网页编辑器中执行 sql 语句`
+   * - 集群管理
+     - 支持部署单计算节点的集群
+     - :ref:`deploy-guides/physical-deploy/manual-deploy/deploy-single-node:部署单计算节点`
+   * - 集群管理
+     - 支持使用命令行“一键”部署集群
+     - `gpdemo 快捷部署使用文档 <https://hashdata.feishu.cn/docx/J7iOdL9kmoRKvDxrCD2cdE2znxh>`__
+   * - 功能
+     - 支持多字节分隔符
+     - :ref:`load-data/customize-multi-char-delimiters:读写外部表时自定义多字符分隔符`
+   * - 存储
+     - 支持增量物化视图
+     - :ref:`optimize-performance/use-incremental-mtv:使用增量物化视图`
+   * - 存储
+     - 支持在 AO 表上使用唯一索引
+     - :ref:`optimize-performance/use-unique-index-on-ao-tables:在 AO 表上使用唯一索引`
+   * - 扩展
+     - 增强 pgvector 功能以支持索引
+     - :ref:`pgvector 索引数据 <operate-with-data/advanced-data-analytics/pgvector-search:索引数据>`
+   * - 扩展
+     - ZomboDB 提供 HTTPS 版安装包以支持 SSL
+     - :ref:`components/zombodb:使用 zombodb 集成 elastic search`
+   * - 扩展
+     - 支持从对象存储、Hadoop 平台加载数据
+     - :ref:`load-data/load-data-from-oss-and-hdfs:从对象存储和 hdfs 加载数据`
+   * - 扩展
+     - 支持从 Hive 数据仓库加载数据
+     - :ref:`load-data/load-data-from-hive:从 hive 数仓加载数据`
+   * - 安全
+     - 支持登录错误输入密码次数检查
+     - :ref:`manage-system/set-security-and-permission/set-password-policy:配置密码策略`
+
 
 各个新功能的详细说明如下：
 
@@ -117,7 +85,7 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 
    向量化 (Vectorization) 执行引擎可以显著提升计算效率。通过将数据向量化，数据库可以同时处理多个数据元素，利用并行计算和 SIMD 指令集加速计算过程。HashData Lightning Vectorization（简称 Vectorization）是基于 HashData Lightning 内核的一个向量化插件，用于优化查询语句的性能。在 v1.5.0 版本中，提升了插件的可用性，并新支持了多种类型的算子。
 
-   详情参见文档 `HashData Lightning Vectorization 使用说明 <https://hashdata.feishu.cn/docx/WkYcdadAqoB8HCxIS5Jchw1snTc>`__\ 。
+   详情参见文档\ :ref:`operate-with-data/advanced-data-analytics/vectorization-queries:vectorization 向量化查询计算`\ 。
 
 集群管理
 ~~~~~~~~~
@@ -126,7 +94,7 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 
    自 v1.5.0 起，用户可以在图形化界面平台 (HashData Lightning Web Platform) 中直接使用内置的 SQL 查询编辑器编写和执行 SQL 语句。在选择数据库后，你可以在编辑器中编写 SQL 语句，对输入的 SQL 语句进行格式化操作，并执行 SQL 语句。该编辑器支持内容搜索和字符串替换。
 
-   详情参见文档 `HashData Lightning Web Platform 说明文档 <https://hashdata.feishu.cn/docx/QBT2dwPR4omACOxOi7acP4bfnih#JPOidqZuDoXxVwx9H9tckqBpnGc>`__\ 。
+   详情参见文档\ :ref:`operate-with-data/view-and-operate-db-objects-using-web-platform:在网页编辑器中执行 sql 语句`\ 。
 
 -  **支持以单计算节点部署集群。**
 
@@ -134,7 +102,7 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 
    从 v1.5.0 开始，用户可以像部署 PostgreSQL 一样部署单计算节点的 HashData Lightning 集群，集群仅包含一个 Coordinator 节点，无需指定繁多的配置参数，也无需预分配多个节点的计算资源。
 
-   用户只需使用脚本工具 ``gpdemo`` 即可快速部署一套单节点的 HashData Lightning 集群。详情参见文档\ `单节点部署 HashData Lightning <https://hashdata.feishu.cn/docx/IpFzdwlPLo87JDxjJSHc1DOgnJh>`__\ 。
+   用户只需使用脚本工具 ``gpdemo`` 即可快速部署一套单节点的 HashData Lightning 集群。详情参见文档\ :ref:`deploy-guides/physical-deploy/manual-deploy/deploy-single-node:部署单计算节点`\ 。
 
 -  **支持使用命令行工具“一键”部署集群。**
 
@@ -149,10 +117,9 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 
 -  **支持多字节分隔符**
 
-   自 v1.5.0 版本起，在读写外表数据时，HashData Lightning 支持自定义分割字符（多字符），从而读写更加丰富的数据格式，例如使用
-   ``|@|`` 来做数据分隔符。
+   自 v1.5.0 版本起，在读写外表数据时，HashData Lightning 支持自定义分割字符（多字符），从而读写更加丰富的数据格式，例如使用 ``|@|`` 来做数据分隔符。
 
-   详情参见文档\ `在读写外表时自定义多字符分隔符 <https://hashdata.feishu.cn/docx/B5MRdE1SCoc2XTxiicicoHJAn3c>`__\ 。
+   详情参见文档\ :ref:`load-data/customize-multi-char-delimiters:读写外部表时自定义多字符分隔符`\ 。
 
 存储
 ~~~~~~
@@ -161,13 +128,13 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 
    增量物化视图是物化视图的一种特殊形式。当数据在基础表中发生变化时（例如插入、更新、删除操作），增量物化视图不需要重新计算整个视图中的所有数据。相反，它只更新那些自上次刷新以来发生变化的部分。这样可以节省大量的计算资源和时间，显著提高性能，尤其是在处理大型数据集时。
 
-   自 v1.5.0 起，如果查询时有中间结果集需要加速，或者在读多写少的场景下，用户可以使用增量物化视图来加速查询，详情参见文档\ `增量物化视图说明文档 <https://hashdata.feishu.cn/docx/F5gQd0xdCok3EOx704scXUtRn6N>`__\ 。
+   自 v1.5.0 起，如果查询时有中间结果集需要加速，或者在读多写少的场景下，用户可以使用增量物化视图来加速查询，详情参见文档\ :ref:`optimize-performance/use-incremental-mtv:使用增量物化视图`\ 。
 
 -  **在 AO 表上使用唯一索引**
 
    自 v1.5.0 起，你可以在 HashData Lightning 的 Append-Optimized (AO) 或 Append-Optimized Column Store (AOCS) 表上添加唯一索引。有了唯一索引，HashData Lightning 会在将数据插入到 AO 表时，强制检查唯一性约束，从而保证数据的唯一性，同时能够与优化器一起优化特定的查询，从而提高数据库的查询性能。但这也带来的一定的开销用于维护唯一索引，尤其是在插入数据时。
 
-   详情参见文档\ `在 AO 表上使用唯一索引 <https://hashdata.feishu.cn/docx/IdrwdqkwtocutkxipS8cZvB7n7c>`__\ 。
+   详情参见文档\ :ref:`optimize-performance/use-unique-index-on-ao-tables:在 AO 表上使用唯一索引`\ 。
 
 扩展
 ~~~~~~
@@ -176,7 +143,7 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 
    向量相似搜索插件 pgvector 可执行精确的最近邻搜索，提供较高的召回率。
 
-   如果需要更高的召回率，你可以通过添加索引来使用近似最近邻搜索，不过这会降低一些性能。自 HashData Lightning v1.5.0 起，pgvector 支持添加 IVFFlat 和 HNSW 类型的索引。详情参见文档 `pgvector 使用文档 <https://hashdata.feishu.cn/docx/PFHkd0DAHodn9OxPn6sci8aZnDf>`__\ 。
+   如果需要更高的召回率，你可以通过添加索引来使用近似最近邻搜索，不过这会降低一些性能。自 HashData Lightning v1.5.0 起，pgvector 支持添加 IVFFlat 和 HNSW 类型的索引。详情参见文档 :ref:`pgvector 索引数据 <operate-with-data/advanced-data-analytics/pgvector-search:索引数据>`。
 
 -  **ZomboDB 支持 SSL。**
 
@@ -184,13 +151,13 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 
    自 v1.5.0 起，ZomboDB 提供 HTTPS 和 HTTP 两个版本的安装包，以支持 SSL，即 gppkg 包（HTTPS 版）、gppkg 包（HTTP 版）、RPM 包（HTTPS 版）、RPM 包（HTTP 版）。
 
-   如果 Elasticsearch 集群配置了 HTTPS，那么安装 ZomboDB 时可选择 HTTPS 版本的安装包，详情参见文档 `ZomboDB 使用手册 <https://hashdata.feishu.cn/docx/R8HldRu0wo8aJLxV3gGcbN6Snpd>`__\ 。
+   如果 Elasticsearch 集群配置了 HTTPS，那么安装 ZomboDB 时可选择 HTTPS 版本的安装包，详情参见文档\ :ref:`components/zombodb:使用 zombodb 集成 elastic search`\ 。
 
 -  **支持从对象存储、Hadoop 平台加载数据**
 
    自 v1.5.0 起，你可以通过数据库扩展 ``datalake_fdw``，来将对象存储（例如 Amazon S3、青云、阿里云、华为云、腾讯云等）、HDFS 存储上的数据、作为外部数据加载到 HashData Lightning 中，以进行数据查询/访问。目前，支持加载的数据格式为 CSV、TEXT、ORC、PARQUET。
 
-   详情参见文档\ `加载对象存储和 HDFS 上的数据到 HashData Lightning <https://hashdata.feishu.cn/docx/Scv7dnbXVokCh9xOliJcJPnmnpb>`__\ 。
+   详情参见文档\ :ref:`load-data/load-data-from-oss-and-hdfs:从对象存储和 hdfs 加载数据`\ 。
 
 -  **支持从 Hive 数据仓库加载数据。**
 
@@ -200,20 +167,18 @@ HashData Lightning v1.5.0 新增了若干功能，包含了若干产品性能/�
 
    但当前尚不支持同步 Hive External Table，也不支持同步 Hive Table 的统计信息。
 
-   详情参见文档\ `加载 Hive 上的数据到 HashData Lightning <https://hashdata.feishu.cn/docx/MpDOdU15BoNoUdxVpE3cfyDmnwc>`__\ 。
+   详情参见文档\ :ref:`load-data/load-data-from-hive:从 hive 数仓加载数据`\ 。
 
 安全
 ~~~~~~
 
 -  **支持创建和绑定数据库的用户密码策略配置。**
 
-   Profile，即密码策略配置，用于控制数据库中用户的密码安全策略。Profile 定义了用户管理和重复使用密码的规则。通过配置 Profile，数据库管理员可以使用 SQL
-   语句强制添加一些约束，例如在一定次数的登录失败后锁定账户，或者控制密码重复使用次数。
+   Profile，即密码策略配置，用于控制数据库中用户的密码安全策略。Profile 定义了用户管理和重复使用密码的规则。通过配置 Profile，数据库管理员可以使用 SQL 语句强制添加一些约束，例如在一定次数的登录失败后锁定账户，或者控制密码重复使用次数。
 
-   自 v1.5.0 起，HashData Lightning 支持通过 SQL 语句创建 Profile，并将
-   Profile 绑定到一个或多个用户中，从而控制数据库用户的密码安全策略。
+   自 v1.5.0 起，HashData Lightning 支持通过 SQL 语句创建 Profile，并将 Profile 绑定到一个或多个用户中，从而控制数据库用户的密码安全策略。
 
-   详情参见文档\ `在 HashData Lightning 中配置密码策略 <https://hashdata.feishu.cn/docx/ShVXdu1y7oSoHGxlBibc3fUrnsC>`__\ 。
+   详情参见文档\ :ref:`manage-system/set-security-and-permission/set-password-policy:配置密码策略`\ 。
 
 变更说明
 ---------

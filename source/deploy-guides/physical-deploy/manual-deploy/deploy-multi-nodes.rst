@@ -16,7 +16,7 @@
 第 1 步：准备节点服务器
 -----------------------
 
-参照\ :ref:`部署前准备 <部署前准备>`\的内容，完成节点服务器的准备工作。
+参照\ :ref:`部署前准备 <deploy-guides/physical-deploy/manual-deploy/prepare-to-deploy:部署前准备>`\的内容，完成节点服务器的准备工作。
 
 第 2 步：安装 RPM 包
 --------------------
@@ -310,22 +310,3 @@
    4    | 2       | p    | p              | s    | u      | 6000 | cddb-datanode03      | cddb-datanode03       | /data0/primary/gpseg2
    7    | 2       | m    | m              | s    | u      | 7000 | cddb-datanode01      | cddb-datanode01       | /data0/mirror/gpseg2
    (8 rows)
-
-
-.. list-table:: 示例表格
-   :header-rows: 1
-   :align: left
-   :widths: 12 30
-
-   * - 项目
-     - 详细信息
-   * - 项目 A
-     - 
-        * 细节 1。:ref:`用用梳理 <deploy-guides/deploy-in-k8s:典型使用场景>`
-        * 细节 2
-        * 细节 3
-   * - 项目 B
-     - 
-        * 细节 1
-        * 细节 2
-        * 细节 3

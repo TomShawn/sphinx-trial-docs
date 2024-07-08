@@ -5,66 +5,51 @@ v1.3.0 发版说明
 
 版本号：v1.3.0
 
-HashData Lightning v1.3.0
-是一个小版本，新增了若干特性，包含了产品性能/稳定性优化。
+HashData Lightning v1.3.0 是一个小版本，新增了若干特性，包含了产品性能/稳定性优化。
 
 新功能
 --------
 
 HashData Lightning 在 v1.3.0 中引入了以下新特性：
 
-+----------+----------------------------+----------------------------+
-| 分类     | 功能                       | 相关文档                   |
-+==========+============================+============================+
-| 查询处理 | 支持将查询中               | `下推聚集运算 <https://has |
-|          | 的聚集运算下推至靠近数据源 | hdata.feishu.cn/wiki/Bz4lw |
-|          |                            | 3FzpiU7zek76LtcQpGYnQf>`__ |
-+          +----------------------------+----------------------------+
-|          | 支持使用 Runtime Filter    | `优化 HashJoin             |
-|          | 对查询进行优化             | 查询性能 <https://has      |
-|          |                            | hdata.feishu.cn/wiki/LM2Kw |
-|          |                            | yE4ZiQno3kfTLAcqBIdnJe>`__ |
-+          +----------------------------+----------------------------+
-|          | 支持对 Append-Optimized    | `在 AO                     |
-|          | 表进行索引扫描             | 表上                       |
-|          |                            | 使用索引扫描 <https://has  |
-|          |                            | hdata.feishu.cn/wiki/FK0vw |
-|          |                            | 8AariztJOkcW9VcKjWWn2e>`__ |
-+----------+----------------------------+----------------------------+
-| 集群管理 | 支持 Kubernetes 容器化部署 | `在 Kubernetes             |
-|          |                            | 上部署 <https://has        |
-|          |                            | hdata.feishu.cn/wiki/R9zXw |
-|          |                            | IhRribjJQkU4aIchdMfnRf>`__ |
-+          +----------------------------+----------------------------+
-|          | 支持 Master 节点高可用     | `[未完成] 高可用 FTS       |
-|          |                            | 说明 <https://has          |
-|          |                            | hdata.feishu.cn/wiki/P3CVw |
-|          |                            | LE5hiHakGkk0wlccPlDnDg>`__ |
-+----------+----------------------------+----------------------------+
-| 数据流   | 支持在线创建索引           | `并发创建索引 <https://has |
-|          |                            | hdata.feishu.cn/wiki/DeGUw |
-|          |                            | 6iLDiIf4nkH30gckxsmnte>`__ |
-+----------+----------------------------+----------------------------+
-| 扩展     | 支持基于 Elastic Search    | `使用 ZomboDB 集成 Elastic |
-|          | 的全文检索引擎             | Search <https://has        |
-|          |                            | hdata.feishu.cn/wiki/AcR0w |
-|          |                            | ExRBi1s7mkPeJCc3H9Fnxd>`__ |
-+----------+----------------------------+----------------------------+
-| 安全     | 支持数据加密组件           | `使用 pgcrypto             |
-|          | ``pgcrypto``               | 加密数据 <https://has      |
-|          |                            | hdata.feishu.cn/wiki/Og5Vw |
-|          |                            | PxxbiJcq7k8r3wcE0ZInXg>`__ |
-+          +----------------------------+----------------------------+
-|          | 支持 PasswordCheck         | `检                        |
-|          | 密码强度校验               | 查密码安全性 <https://has  |
-|          |                            | hdata.feishu.cn/wiki/W1Jfw |
-|          |                            | 3agxiNmJqkFiqWcPaJ6nwg>`__ |
-+          +----------------------------+----------------------------+
-|          | 支持数据脱敏校验           | `使用 Anon                 |
-|          |                            | 脱敏数据 <https://has      |
-|          |                            | hdata.feishu.cn/wiki/JJgxw |
-|          |                            | bsy8i1UN1kfDWSc5WKenMb>`__ |
-+----------+----------------------------+----------------------------+
+.. list-table:: 功能分类
+   :header-rows: 1
+   :align: left
+
+   * - 分类
+     - 功能
+     - 相关文档
+   * - 查询处理
+     - 支持将查询中的聚集运算下推至靠近数据源
+     - :ref:`optimize-performance/push-down-agg-operators:下推聚集运算`
+   * - 查询处理
+     - 支持使用 Runtime Filter 对查询进行优化
+     - :ref:`optimize-performance/optimize-hashjoin-query-performance:优化 hashjoin 查询性能`
+   * - 查询处理
+     - 支持对 Append-Optimized 表进行索引扫描
+     - :ref:`optimize-performance/use-index-scan-on-ao-tables:在 ao 表上使用索引扫描`
+   * - 集群管理
+     - 支持 Kubernetes 容器化部署
+     - :ref:`在 Kubernetes 上部署 HashData Lightning <deploy-guides/deploy-in-k8s:在 kubernetes 上部署>`
+   * - 集群管理
+     - 支持 Master 节点高可用
+     - 
+   * - 数据流
+     - 支持在线创建索引
+     - :ref:`optimize-performance/create-index-in-parallel:并发创建索引`
+   * - 扩展
+     - 支持基于 Elastic Search 的全文检索引擎
+     - :ref:`components/zombodb:使用 zombodb 集成 elastic search`
+   * - 安全
+     - 支持数据加密组件 `pgcrypto`
+     - :ref:`manage-system/set-security-and-permission/use-pgcrypto:使用 pgcrypto 加密数据`
+   * - 安全
+     - 支持 PasswordCheck 密码强度校验
+     - :ref:`manage-system/set-security-and-permission/check-password-security:检查密码安全性`
+   * - 安全
+     - 支持数据脱敏校验
+     - :ref:`manage-system/set-security-and-permission/use-anon:使用 anon 脱敏数据`
+
 
 各个新特性的详细说明如下：
 
@@ -102,6 +87,8 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
                                       ->  Seq Scan on t1
       Optimizer: Postgres query optimizer
       (13 rows)
+
+   详情参见用户文档\ :ref:`optimize-performance/push-down-agg-operators:下推聚集运算`\ 。
 
 -  支持 Runtime Filter。
 
@@ -152,6 +139,8 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
           Bloom Bits: 1048576
           Extra Text: (seg1)   Inner Processed: 2000, Flase Positive Rate: 0.000000
 
+   详情参见文档\ :ref:`optimize-performance/optimize-hashjoin-query-performance:优化 hashjoin 查询性能`\ 。
+
 -  支持扫描 Append-Optimized 表索引
 
    自 v1.3.0 起，支持对 Append-Optimized 表（简称 AO 表）进行 IndexScan，以此来加速某些场景下的查询效率，例如以下查询：
@@ -166,6 +155,8 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
 
    要启用 AO IndexScan，你需要先通过 ``SET optimizer TO off;`` 关闭 ORCA 优化器，并将系统参数 ``gp_enable_ao_indexscan`` 设为 ``ON``\ 。
 
+   详情参见用户文档\ :ref:`optimize-performance/use-index-scan-on-ao-tables:在 ao 表上使用索引扫描` \。
+
 集群管理
 ~~~~~~~~~~
 
@@ -178,6 +169,8 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
    -  ETCD 集群独立部署，用于存放数据库集群状态的元数据信息。
    -  Operator 集群独立部署，用于管理各个数据库节点的容器启停和故障恢复。
    -  通过共享存储挂载数据库节点的底层数据盘，通过共享存储多副本以保证数据可靠性，并支持数据异地灾备。
+
+   详情参见文档\ :ref:`在 Kubernetes 上部署 HashData Lightning <deploy-guides/deploy-in-k8s:在 kubernetes 上部署>`\ 。
 
 -  引入了 Master 节点高可用支持。
 
@@ -205,7 +198,7 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
 
    之前的 HashData Lightning 版本中，创建索引和更新表数据是互斥的。也就是说创建索引时会对表加锁，这时候任何对表数据的增加、更新、删除操作都不会立即执行，而是等待索引创建完成后才会执行，因此会对在线业务产生很大的影响。自 v1.3.0 版本起，创建索引时，数据库不阻塞表数据的更新 。
 
-   使用方法：\ ``CREATE INDEX CONCURRENTLY`` 和 ``REINDEX CONCURRENTLY``\ 。
+   使用方法：\ ``CREATE INDEX CONCURRENTLY`` 和 ``REINDEX CONCURRENTLY``\ 。详情参见用户文档 :ref:`optimize-performance/create-index-in-parallel:并发创建索引`\ 。
 
 扩展
 ~~~~~~
@@ -218,6 +211,8 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
 
    1. 在环境中部署好 ElasticSearch 集群。
    2. 通过命令行 :literal:`gppkg -i zombodb-1.1-24716-release.gppkg`` 安装全文检索插件。
+
+   详情参见文档\ :ref:`components/zombodb:使用 zombodb 集成 elastic search`\ 。
 
 安全
 ~~~~~~
@@ -255,6 +250,8 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
       select decrypt(encrypt('', 'foo', 'aes'), 'foo', 'aes');
       select decrypt(encrypt('', 'foo', 'sm4'), 'foo', 'sm4');
 
+   详情参看文档\ :ref:`manage-system/set-security-and-permission/use-pgcrypto:使用 pgcrypto 加密数据`\ 。
+
 -  引入了 PasswordCheck 密码强度校验支持。
 
    自 v1.3.0 起，用户通过 SQL 语句设置密码时，例如 ``CREATE USER ... PASSWORD`` 或 ``ALTER USER ... PASSWORD``\ ，HashData Lightning 会对密码进行安全性校验。主要会从以下几个方面做弱口令校验：
@@ -272,6 +269,8 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
       gpstop -ra
 
    配置完成后，每次设置密码时，PasswordCheck 都会对密码进行弱口令检查。
+
+   详情参见文档\ :ref:`manage-system/set-security-and-permission/check-password-security:检查密码安全性`\ 。
 
 -  支持数据脱敏组件。
 
@@ -291,6 +290,8 @@ HashData Lightning 在 v1.3.0 中引入了以下新特性：
       # 以下提示标识安装成功
       NOTICE:  installing required extension "pgcrypto"
       CREATE EXTENSION
+
+   详情参见文档\ :ref:`manage-system/set-security-and-permission/use-anon:使用 anon 脱敏数据`\ 。
 
 变更说明
 ----------

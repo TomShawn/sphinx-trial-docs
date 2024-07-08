@@ -4,4 +4,5 @@
 .. toctree:: 
    :maxdepth: 0
 
-   zombodb.rst
+   zombodb
+   web-platform

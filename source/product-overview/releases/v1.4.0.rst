@@ -11,47 +11,37 @@ HashData Lightning v1.4.0 是一个小版本，新增了若干特性，包含了
 新功能
 --------
 
-+----------+---------------------------+----------------------------+
-| 分类     | 功能                      | 相关文档                   |
-+==========+===========================+============================+
-| 查询处理 | 支持并行化查询            | `并行执行查询 <https://has |
-|          |                           | hdata.feishu.cn/wiki/Qivhw |
-|          |                           | N3Mti6uUNkhaLbcC2hingg>`__ |
-+          +---------------------------+----------------------------+
-|          | 支持向量化查询            | `Vectorization             |
-|          |                           | 向                         |
-|          |                           | 量化查询计算 <https://has  |
-|          |                           | hdata.feishu.cn/wiki/R0S5w |
-|          |                           | phryi3lv9kocLNcbJ3fnbc>`__ |
-+----------+---------------------------+----------------------------+
-| 集群管理 | 支持图形化界面部署        | `可视化部署 <https://has   |
-|          |                           | hdata.feishu.cn/wiki/Rthqw |
-|          |                           | B8Owi79mhkpGDPcV5EinJQ>`__ |
-+----------+---------------------------+----------------------------+
-| 功能     | 支持创建定时 Task         | `自动化执行 SQL            |
-|          |                           | 语句 <https://has          |
-|          |                           | hdata.feishu.cn/wiki/OPFVw |
-|          |                           | LmaHiNzznkWPpac7rCYnbg>`__ |
-+----------+---------------------------+----------------------------+
-| 存储     | 支持 UnionStore 存储引擎  | `使用 UnionStore           |
-|          |                           | 存储引擎 <https://has      |
-|          |                           | hdata.feishu.cn/wiki/SnO9w |
-|          |                           | gE0RicH5okLaULcHRbWnIc>`__ |
-+----------+---------------------------+----------------------------+
-| 扩展     | 支持 Kafka FDW 插件       | `从 Kafka                  |
-|          |                           | 加载数据 <https://has      |
-|          |                           | hdata.feishu.cn/wiki/H8dlw |
-|          |                           | Rm8NiAwzEkVizkcFBd9nwg>`__ |
-+          +---------------------------+----------------------------+
-|          | 支持向量检索插件 pgvector | `pgvector                  |
-|          |                           | 向量相似搜索 <https://has  |
-|          |                           | hdata.feishu.cn/wiki/I0NDw |
-|          |                           | a5HDivsdAk8DqEcqfX3ndb>`__ |
-+----------+---------------------------+----------------------------+
-| 安全     | 支持透明数据加密（TDE）   | `透明数据加密 <https://has |
-|          |                           | hdata.feishu.cn/wiki/Zo5sw |
-|          |                           | ekdwiSkBpkcAetcTWJnnVc>`__ |
-+----------+---------------------------+----------------------------+
+.. list-table::
+   :header-rows: 1
+   :align: left
+
+   * - 分类
+     - 功能
+     - 相关文档
+   * - 查询处理
+     - 支持并行化查询
+     - :ref:`optimize-performance/execute-queries-in-parallel:并行执行查询`
+   * - 查询处理
+     - 支持向量化查询
+     - :ref:`operate-with-data/advanced-data-analytics/vectorization-queries:vectorization 向量化查询计算`
+   * - 集群管理
+     - 支持图形化界面部署
+     - :ref:`deploy-guides/physical-deploy/visualized-deploy:可视化部署`
+   * - 功能
+     - 支持创建定时 Task
+     - :ref:`operate-with-data/auto-execute-sql-commands:自动化执行 sql 语句`
+   * - 存储
+     - 支持 UnionStore 存储引擎
+     - :ref:`operate-with-data/operate-with-database-objects/choose-table-storage-models/unionstore-table-format:unionstore 存储格式`
+   * - 扩展
+     - 支持 Kafka FDW 插件
+     - :ref:`load-data/load-data-from-kafka:从 kafka 加载数据`
+   * - 扩展
+     - 支持向量检索插件 pgvector
+     - :ref:`operate-with-data/advanced-data-analytics/pgvector-search:pgvector 向量相似搜索`
+   * - 安全
+     - 支持透明数据加密（TDE）
+     - :ref:`manage-system/set-security-and-permission/use-tde-to-encrypt-data:透明数据加密`
 
 各个新特性的详细说明如下：
 
@@ -79,6 +69,8 @@ HashData Lightning v1.4.0 是一个小版本，新增了若干特性，包含了
       -- 每隔 10 万行换下一个文件，可根据情况调整，让数据尽量均匀分布在多个文件上。
       SET gp_appendonly_insert_files_tuples_range = 100000;
 
+   详情参见用户文档\ :ref:`optimize-performance/execute-queries-in-parallel:并行执行查询`\ 。
+
 -  向量化查询。
 
    在 HashData Lightning 中处理大规模数据集时，使用向量化执行引擎可以显著提高计算效率。通过将数据向量化，利用循环展开和 SIMD 指令集同时一次处理多行数据，从而减少函数调用的代价和缓存失效开销。开启向量查询后，执行带有 Scan、Join、Agg、Sort 等算子的查询时，数据库按照批的方式处理数据，而不是按照每条数据处理。
@@ -99,6 +91,8 @@ HashData Lightning v1.4.0 是一个小版本，新增了若干特性，包含了
       -- 设置 batch 数量
       SET vector.hashdata_max_vectorization_cnt  ti 16384;
 
+   详情参见文档 :ref:`operate-with-data/advanced-data-analytics/vectorization-queries:vectorization 向量化查询计算`\ 。
+
 集群管理
 ~~~~~~~~~~
 
@@ -107,6 +101,8 @@ HashData Lightning v1.4.0 是一个小版本，新增了若干特性，包含了
    自 v1.4.0 起，你可以使用内置的图形化部署工具来部署 HashData Lightning。相较于手动部署的方式，可视化部署更为简单直观，你只需要按照界面提示进行操作，无需复杂的命令和配置文件，从而使部署更加高效。
 
    执行部署前，确保已经在每一台机器节点上安装数据库 RPM 包。图形化部署工具默认访问数据库节点服务器的 ``7788`` 端口。安装完成之后，所有节点的 ``7788`` 端口会默认打开。打开网址 ``http://<IP>:7788/``\ ，按照提示开始自动化部署过程。
+
+   详情参见文档\ :ref:`deploy-guides/physical-deploy/visualized-deploy:可视化部署`\ 。
 
 功能
 ~~~~~~
@@ -172,6 +168,8 @@ HashData Lightning v1.4.0 是一个小版本，新增了若干特性，包含了
                 "pg_task_run_history_jobid_index" btree (jobid), tablespace "pg_global"
             Tablespace: "pg_global"
 
+   详情参见文档\ :ref:`operate-with-data/auto-execute-sql-commands:自动化执行 sql 语句`\ 。
+
 存储
 ~~~~~~
 
@@ -181,7 +179,7 @@ HashData Lightning v1.4.0 是一个小版本，新增了若干特性，包含了
 
    UnionStore 的核心思想是 "Log is database"，通过持久化计算层日志并进行日志 replay 来构建数据，以供计算层查询。
 
-   UnionStore 的具体使用方法，参考对应的功能文档。
+   UnionStore 的具体使用方法，参考 :ref:`operate-with-data/operate-with-database-objects/choose-table-storage-models/unionstore-table-format:unionstore 存储格式`\ 。
 
 扩展
 ~~~~~~
@@ -216,11 +214,15 @@ HashData Lightning v1.4.0 是一个小版本，新增了若干特性，包含了
       -- buffer_delay：从 Kafka 获取数据的超时时间
       -- 目前仅支持 CSV 和 JSON 两种数据格式
 
+   详情参见文档\ :ref:`load-data/load-data-from-kafka:从 kafka 加载数据`\ 。
+
 -  支持向量检索插件 pgvector。
 
    pgvector 是一款开源的向量相似搜索插件，支持精确和近似最近邻搜索，以及 L2 距离、内积和余弦距离。自 v1.4.0 起，HashData Lightning 支持通过 SQL 语句使用 pgvector 来进行数据存储、查询、索引、混合搜索等操作。
 
    pgvector 已内置于 HashData Lightning 安装包内，无需额外安装。可通过 SQL 命令 ``CREATE EXTENSION vector;`` 开始使用插件。
+
+   详情参见文档 :ref:`operate-with-data/advanced-data-analytics/pgvector-search:pgvector 向量相似搜索`\ 。
 
 安全
 ~~~~~~
@@ -240,6 +242,8 @@ HashData Lightning v1.4.0 是一个小版本，新增了若干特性，包含了
 
       # 开启TDE特性，并指定加密算法为 SM4
       gpinitsystem -c gpinitsystem_config -T SM4
+
+   详情参见文档\ :ref:`manage-system/set-security-and-permission/use-tde-to-encrypt-data:透明数据加密`\ 。
 
 变更说明
 ----------

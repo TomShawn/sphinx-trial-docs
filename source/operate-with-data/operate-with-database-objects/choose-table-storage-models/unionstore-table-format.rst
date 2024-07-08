@@ -32,7 +32,7 @@ UnionStore 是面向 Heap 表及其索引的新存储引擎，结合 HashData Li
 
 2. 用 Vim 编辑器打开 ``unionstore_deploy.sh`` 脚本文件，填写脚本中的对应参数，填写后保存关闭。关于参数的描述，见脚本注释。
 
-   .. image:: ../../../images/unionstore-config.png
+   .. image:: /images/unionstore-config.png
 
 3. 执行 ``unionstore_deploy.sh`` 脚本， UnionStore 会被自动部署。
 

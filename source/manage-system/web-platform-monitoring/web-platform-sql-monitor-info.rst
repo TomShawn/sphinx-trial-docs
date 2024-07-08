@@ -3,7 +3,7 @@
 
 HashData Lightning Web Platform 为数据库中的活动 SQL 提供监控信息。你可以在\ **查询监控**\ 面板下看到 SQL 语句的执行状态、各语句的执行详情以及数据库各会话的状态。面板示例如下：
 
-.. image:: ../../images/web-platform-view-sql-monitor-info-1.png
+.. image:: /images/web-platform-view-sql-monitor-info-1.png
 
 前提条件
 --------
@@ -66,18 +66,18 @@ HashData Lightning Web Platform 为数据库中的活动 SQL 提供监控信息�
 
 要取消某条或某几条执行中的 SQL 语句，在 SQL 列表中找到对应 SQL 的\ **操作**\ 列，然后点击\ **取消查询**\ 。
 
-.. image:: ../../images/web-platform-view-sql-monitor-info-2.png
+.. image:: /images/web-platform-view-sql-monitor-info-2.png
 
 查看 SQL 详情
 ~~~~~~~~~~~~~
 
 要查看某条 SQL 语句的详情，点击该 SQL 语句的查询 ID，然后进入详情页面。
 
-.. image:: ../../images/web-platform-view-sql-monitor-info-3.png
+.. image:: /images/web-platform-view-sql-monitor-info-3.png
 
 详情页面展示了 SQL 执行的详情，你可以点击不同标签来查看 SQL 语句的查询计划图、SQL 文本和查询计划文本。示例如下：
 
-.. image:: ../../images/web-platform-view-sql-monitor-info-4.png
+.. image:: /images/web-platform-view-sql-monitor-info-4.png
 
 查看会话状态
 ------------
@@ -86,7 +86,7 @@ HashData Lightning Web Platform 为数据库中的活动 SQL 提供监控信息�
 
 **会话状态**\ 标签下的页面实时显示当前数据库中正在执行的会话列表，主要包括会话 ID、执行状态、执行操作的用户、执行操作的数据库、开始时间、应用名、闲置时间等。
 
-.. image:: ../../images/web-platform-view-sql-monitor-info-5.png
+.. image:: /images/web-platform-view-sql-monitor-info-5.png
 
 要查看某个会话的详情，你可以在搜索区根据执行状态、用户、数据库以及应用名，在对应的下拉选项框中进行选择，然后点击\ **查询**\ 来进行搜索。其中\ **用户**\ 支持多选。
 

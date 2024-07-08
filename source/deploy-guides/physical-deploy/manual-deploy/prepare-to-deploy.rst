@@ -332,37 +332,6 @@ HashData Lightning 的磁盘类型、操作系统以及调度策略如下：
    |              | Ubuntu | mq-deadline    |
    +--------------+--------+----------------+
 
-
-NVMe
------
-
-* OS: RHEL 7
-  - 推荐的调度策略: none
-* OS: RHEL 8
-  - 推荐的调度策略: none
-* OS: Ubuntu
-  - 推荐的调度策略: none
-
-SSD
-----
-
-* OS: RHEL 7
-  - 推荐的调度策略: noop
-* OS: RHEL 8
-  - 推荐的调度策略: none
-* OS: Ubuntu
-  - 推荐的调度策略: none
-
-其他
-----
-
-* OS: RHEL 7
-  - 推荐的调度策略: deadline
-* OS: RHEL 8
-  - 推荐的调度策略: mq-deadline
-* OS: Ubuntu
-  - 推荐的调度策略: mq-deadline
-
 参考以下命令修改调度策略。注意，该命令仅为临时修改，服务器重启后，修改将失效。
 
 .. code:: bash

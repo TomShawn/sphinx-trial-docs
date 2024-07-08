@@ -29,7 +29,7 @@ HashData Lightning v1.5.4 为集群运行和数据库详情新增了可视化监
 - 全面、多维度监控 (Data from all angles)
 - 接近实时的数据展示 (Near-real time)
 
-.. image:: ../../images/web-platform-dashboard.png
+.. image:: /images/web-platform-dashboard.png
    :alt: Web Platform
 
 注意：对于当前版本，只有通过\ :ref:`deploy-guides/physical-deploy/visualized-deploy:可视化部署`\ 的新集群，才能访问监控面板。详情参考\ :ref:`manage-system/web-platform-monitoring/web-platform-monitoring-index:使用 web platform 查看集群监控数据`\ 。

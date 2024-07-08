@@ -652,23 +652,26 @@ Hive Connector 和 datalake_fdw 支持将 Iceberg 和 Hudi 格式的表加载到
 以下为 Hive 集群上表数据类型，与 HashData Lightning
 表数据类型的一一对应关系。
 
-========= ==================
-Hive      HashData Lightning
-========= ==================
-binary    bytea
-tinyint   smallint
-smallint  smallint
-int       int
-bigint    bigint
-float     float4
-double    double precision
-string    text
-timestamp timestamp
-date      date
-char      char
-varchar   varchar
-decimal   decimal
-========= ==================
+.. table:: 
+   :align: left
+
+   ========= ==================
+   Hive      HashData Lightning
+   ========= ==================
+   binary    bytea
+   tinyint   smallint
+   smallint  smallint
+   int       int
+   bigint    bigint
+   float     float4
+   double    double precision
+   string    text
+   timestamp timestamp
+   date      date
+   char      char
+   varchar   varchar
+   decimal   decimal
+   ========= ==================
 
 已知问题
 --------

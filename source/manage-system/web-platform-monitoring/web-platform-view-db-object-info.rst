@@ -3,7 +3,7 @@
 
 HashData Lightning Web Platform 为用户提供数据库对象的属性信息。在\ **数据库表**\ 页面中，你可以查看数据库中表的相关信息，例如表所在的 schema、表名、是否包含分区、占用空间大小、所属用户、预估行数等属性。页面示例如下：
 
-.. image:: ../../images/web-platform-view-db-object-info-1.png
+.. image:: /images/web-platform-view-db-object-info-1.png
 
 前提条件
 --------
