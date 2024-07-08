@@ -41,7 +41,7 @@ templates_path = ['_templates']
 # -- HTML configuration ---------------------------------------------------
 
 # Required theme setup
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'piccolo_theme'
 
 # # Set link name generated in the top bar.
 # html_title = 'HashData Lightning 用户文档'
