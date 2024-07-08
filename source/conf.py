@@ -41,42 +41,42 @@ templates_path = ['_templates']
 # -- HTML configuration ---------------------------------------------------
 
 # Required theme setup
-html_theme = 'sphinx_material'
+html_theme = 'sphinx_rtd_theme'
 
-# Set link name generated in the top bar.
-html_title = 'HashData Lightning 用户文档'
+# # Set link name generated in the top bar.
+# html_title = 'HashData Lightning 用户文档'
 
-# Material theme options (see theme.conf for more information)
-html_theme_options = {
+# # Material theme options (see theme.conf for more information)
+# html_theme_options = {
 
-    # Set the name of the project to appear in the navigation.
-    'nav_title': 'HashData Lightning 用户文档',
+#     # Set the name of the project to appear in the navigation.
+#     'nav_title': 'HashData Lightning 用户文档',
 
-    # Specify a base_url used to generate sitemap.xml. If not
-    # specified, then no sitemap will be built.
-    #'base_url': 'https://project.github.io/project',
+#     # Specify a base_url used to generate sitemap.xml. If not
+#     # specified, then no sitemap will be built.
+#     #'base_url': 'https://project.github.io/project',
 
-    # Set the color and the accent color
-    'color_primary': 'blue',
-    'color_accent': 'light-blue',
+#     # Set the color and the accent color
+#     'color_primary': 'blue',
+#     'color_accent': 'light-blue',
 
-    # Set the repo location to get a badge with stats
-    'repo_url': 'https://github.com/TomShawn/sphinx-trial-docs/',
-    'repo_name': 'sphinx-trial-docs',
+#     # Set the repo location to get a badge with stats
+#     'repo_url': 'https://github.com/TomShawn/sphinx-trial-docs/',
+#     'repo_name': 'sphinx-trial-docs',
 
-    # Visible levels of the global TOC; -1 means unlimited
-    'globaltoc_depth': 3,
-    # If False, expand all TOC entries
-    'globaltoc_collapse': False,
-    # If True, show hidden TOC entries
-    'globaltoc_includehidden': True,
-}
+#     # Visible levels of the global TOC; -1 means unlimited
+#     'globaltoc_depth': 3,
+#     # If False, expand all TOC entries
+#     'globaltoc_collapse': False,
+#     # If True, show hidden TOC entries
+#     'globaltoc_includehidden': True,
+# }
 
-html_theme_path = sphinx_material.html_theme_path()
-html_context = sphinx_material.get_html_context()
-html_sidebars = {
-    "**": ["logo-text.html", "globaltoc.html", "localtoc.html", "searchbox.html"]
-}
+# html_theme_path = sphinx_material.html_theme_path()
+# html_context = sphinx_material.get_html_context()
+# html_sidebars = {
+#     "**": ["logo-text.html", "globaltoc.html", "localtoc.html", "searchbox.html"]
+# }
 
 # -- PDF/LaTeX configuration ---------------------------------------------------
 
