@@ -7,6 +7,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import os
 import sys
+import sphinx_material
+
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.append('.')
 
@@ -67,6 +69,12 @@ html_theme_options = {
     'globaltoc_collapse': False,
     # If True, show hidden TOC entries
     'globaltoc_includehidden': True,
+}
+
+html_theme_path = sphinx_material.html_theme_path()
+html_context = sphinx_material.get_html_context()
+html_sidebars = {
+    "**": ["logo-text.html", "globaltoc.html", "localtoc.html", "searchbox.html"]
 }
 
 # -- PDF/LaTeX configuration ---------------------------------------------------
