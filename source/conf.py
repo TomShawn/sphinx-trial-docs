@@ -37,15 +37,36 @@ autosectionlabel_prefix_document = True
 
 # -- HTML configuration ---------------------------------------------------
 
-html_theme = "sphinx_rtd_theme"
-html_static_path = ['_static']
+# Required theme setup
+html_theme = 'sphinx_material'
 
+# Set link name generated in the top bar.
+html_title = 'HashData Lightning 用户文档'
+
+# Material theme options (see theme.conf for more information)
 html_theme_options = {
-    'collapse_navigation': False,
-    'sticky_navigation': True,  # 设置导航栏固定
-    'navigation_depth': 4,
-    'includehidden': True,
-    'titles_only': False
+
+    # Set the name of the project to appear in the navigation.
+    'nav_title': 'HashData Lightning 用户文档',
+
+    # Specify a base_url used to generate sitemap.xml. If not
+    # specified, then no sitemap will be built.
+    #'base_url': 'https://project.github.io/project',
+
+    # Set the color and the accent color
+    'color_primary': 'blue',
+    'color_accent': 'light-blue',
+
+    # Set the repo location to get a badge with stats
+    'repo_url': 'https://github.com/TomShawn/sphinx-trial-docs/',
+    'repo_name': 'sphinx-trial-docs',
+
+    # Visible levels of the global TOC; -1 means unlimited
+    'globaltoc_depth': 3,
+    # If False, expand all TOC entries
+    'globaltoc_collapse': False,
+    # If True, show hidden TOC entries
+    'globaltoc_includehidden': False,
 }
 
 # -- PDF/LaTeX configuration ---------------------------------------------------

@@ -2,10 +2,6 @@
 与 Greenplum 的特性对比
 =======================
 
-.. contents:: 目录
-   :local:
-   :depth: 3
-
 HashData Lightning 100% 兼容 Greenplum，能提供所有你需要的 Greenplum 特性。
 
 除此之外，HashData Lightning 还拥有一些 Greenplum 当前不具备或不支持的特性，详见下文。
