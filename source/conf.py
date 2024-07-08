@@ -13,7 +13,7 @@ sys.path.append('.')
 project = 'HashData Lightning 文档'
 copyright = '2024, HashData'
 author = 'HashData'
-release = 'v1.5.4'
+release = 'latest'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -24,12 +24,6 @@ extensions = [
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.intersphinx'
 ]
-
-# extensions = [
-#     'sphinx.ext.autosectionlabel',
-#     'sphinx.ext.intersphinx'
-# ]
-
 source_suffix = {
     '.rst': 'restructuredtext',
     '.md': 'markdown',
@@ -38,6 +32,15 @@ source_suffix = {
 master_doc = 'index'
 
 needs_sphinx = '3.0'
+language = 'zh_CN'
+autosectionlabel_prefix_document = True
+
+# -- HTML configuration ---------------------------------------------------
+
+html_theme = "sphinx_rtd_theme"
+
+# -- PDF/LaTeX configuration ---------------------------------------------------
+
 latex_engine = 'xelatex'
 
 latex_elements = {
@@ -90,6 +93,3 @@ latex_elements = {
 \usepackage{multirow}
 '''
 }
-
-language = 'zh_CN'
-autosectionlabel_prefix_document = True

@@ -914,15 +914,13 @@ ES Query DSL
 
    返回与正查询匹配的文档，同时降低与负查询匹配的文档的相关性得分。这个方法表示 Elasticsearch 中的 ``Boosting query``\ 。
 
-   ::
+   .. code:: sql
 
-      ```sql
       FUNCTION dsl.boosting (
          positive zdbquery,
          negative zdbquery,
          negative_boost real DEFAULT NULL)
       RETURNS zdbquery
-      ```
 
 -  `dsl.common() <https://www.elastic.co/guide/en/elasticsearch/reference/7.17/query-dsl-common-terms-query.html>`__
 
@@ -1921,7 +1919,7 @@ ZomboDB 支持几乎所有 Elasticsearch 中的聚合操作，并将其封装成
           score numeric,
           bg_count bigint)
 
--  \`zdb.significant_terms_two_level
+-  ``zdb.significant_terms_two_level``
 
    兼容 ``zdb.significant_terms`` 函数，并使用 ``zdb.terms`` 函数作为 first_field，\ ``zdb.significant_terms`` 作为 second_field。
 
@@ -2430,6 +2428,7 @@ cat API 的视图功能强大，可以在一些聚合操作中负责复杂的分
 .. list-table:: 
    :header-rows: 1
    :align: left
+   :widths: 11 19
 
    * - API 操作
      - 说明
