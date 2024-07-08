@@ -38,6 +38,13 @@ autosectionlabel_prefix_document = True
 # -- HTML configuration ---------------------------------------------------
 
 html_theme = "sphinx_rtd_theme"
+html_static_path = ['_static']
+
+html_theme_options = {
+    'navigation_depth': 4,
+    'collapse_navigation': False,
+    'titles_only': False
+}
 
 # -- PDF/LaTeX configuration ---------------------------------------------------
 
