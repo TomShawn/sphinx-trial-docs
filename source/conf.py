@@ -7,7 +7,6 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import os
 import sys
-import sphinx_material
 
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.append('.')
@@ -36,13 +35,13 @@ master_doc = 'index'
 needs_sphinx = '3.0'
 language = 'zh_CN'
 autosectionlabel_prefix_document = True
-templates_path = ['_templates']
+# templates_path = ['_templates']
 
 # -- HTML configuration ---------------------------------------------------
 
 # Required theme setup
 html_theme = "sphinx_rtd_theme"
-html_logo = './images/hashdata-logo.png'
+# html_logo = './images/hashdata-logo.png'
 
 # html_theme_options = {
 #     # Note how we can include links:
