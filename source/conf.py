@@ -41,7 +41,14 @@ templates_path = ['_templates']
 # -- HTML configuration ---------------------------------------------------
 
 # Required theme setup
-html_theme = 'piccolo_theme'
+html_theme = "sphinx_rtd_theme"
+html_logo = './images/hashdata-logo.png'
+
+# html_theme_options = {
+#     # Note how we can include links:
+#     "banner_text": 'This is a <a href="https://docs.hashdata.xyz/docs">HashData</a> product.',
+#     "show_theme_credit": False
+# }
 
 # # Set link name generated in the top bar.
 # html_title = 'HashData Lightning 用户文档'
