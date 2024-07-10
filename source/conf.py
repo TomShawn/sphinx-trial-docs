@@ -14,7 +14,7 @@ sys.path.append('.')
 project = 'HashData Lightning 文档'
 copyright = '2024, HashData'
 author = 'HashData'
-release = 'latest'
+release = 'v1.5.4'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
