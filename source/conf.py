@@ -23,7 +23,8 @@ extensions = [
     'myst_parser',
     'rst2pdf.pdfbuilder',
     'sphinx.ext.autosectionlabel',
-    'sphinx.ext.intersphinx'
+    'sphinx.ext.intersphinx',
+    'sphinx_tabs.tabs'
 ]
 source_suffix = {
     '.rst': 'restructuredtext',
