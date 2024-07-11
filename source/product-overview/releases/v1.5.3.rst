@@ -45,7 +45,7 @@ HashData Lightning v1.5.3 新增了若干功能。
 
   Directory Table 定位于存储、管理和分析非结构化数据对象。Directory Table 位于表空间中，将非结构化数据文件导入 Directory Table 后，会在 Directory Table 上创建一条记录，即该文件的元数据信息，而文件本身则加载进对象存储中。表上的元数据与对象存储上的对应文件相关联。
 
-  详情参见文档\ :ref:`operate-with-data/advanced-data-analytics/directory-tables:使用目录表纳管非结构化文件`\ 。
+  详情参见文档\ :ref:`使用目录表纳管非结构化文件 <operate-with-data/advanced-data-analytics/directory-tables:使用目录表纳管非结构化文件>`\ 。
 
 - **支持位图压缩算法 RoaringBitMap。**
 

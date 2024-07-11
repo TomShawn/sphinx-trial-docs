@@ -1,7 +1,7 @@
 部署多计算节点
 ==============
 
-本文档介绍如何通过 RPM 包在物理机上安装与部署 HashData Lightning。在阅读本文前，建议先阅读\ :ref:`软硬件配置 <软硬件配置需求>`。
+本文档介绍如何通过 RPM 包在物理机上安装与部署 HashData Lightning。在阅读本文前，建议先阅读\ :ref:`软硬件配置 <deploy-guides/physical-deploy/manual-deploy/software-and-hardware-config-requirements:软硬件配置需求>`\ 。
 
 本文所介绍的部署方法可用于生产环境。
 
