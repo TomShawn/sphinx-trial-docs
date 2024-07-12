@@ -1,0 +1,329 @@
+v1.4.0 发版说明
+===============
+
+发布日期：2023-08-04
+
+版本号：v1.4.0
+
+HashData Lightning v1.4.0 是一个小版本，新增了若干特性，包含了若干特性变更、产品性能/稳定性优化，修复了若干错误
+(bug)。
+
+新功能
+--------
+
+.. list-table::
+   :header-rows: 1
+   :align: left
+
+   * - 分类
+     - 功能
+     - 相关文档
+   * - 查询处理
+     - 支持并行化查询
+     - :ref:`optimize-performance/execute-queries-in-parallel:并行执行查询`
+   * - 查询处理
+     - 支持向量化查询
+     - :ref:`operate-with-data/advanced-data-analytics/vectorization-queries:vectorization 向量化查询计算`
+   * - 集群管理
+     - 支持图形化界面部署
+     - :ref:`deploy-guides/physical-deploy/visualized-deploy:可视化部署`
+   * - 功能
+     - 支持创建定时 Task
+     - :ref:`operate-with-data/auto-execute-sql-commands:自动化执行 sql 语句`
+   * - 存储
+     - 支持 UnionStore 存储引擎
+     - :ref:`operate-with-data/operate-with-database-objects/choose-table-storage-models/unionstore-table-format:unionstore 存储格式`
+   * - 扩展
+     - 支持 Kafka FDW 插件
+     - :ref:`load-data/load-data-from-kafka:从 kafka 加载数据`
+   * - 扩展
+     - 支持向量检索插件 pgvector
+     - :ref:`operate-with-data/advanced-data-analytics/pgvector-search:pgvector 向量相似搜索`
+   * - 安全
+     - 支持透明数据加密（TDE）
+     - :ref:`manage-system/set-security-and-permission/use-tde-to-encrypt-data:透明数据加密`
+
+各个新特性的详细说明如下：
+
+查询处理
+~~~~~~~~~~
+
+-  支持并行化查询。
+
+   并行查询即在 HashData Lightning 中，使用多个 CPU 核心（多个进程）来处理单个查询，以此来提高查询性能。计算资源（包括 SeqScan 算子）数目会随着数据量变化而动态变化。
+
+   使用并行查询前，你需要调整如下系统参数：
+
+   .. code:: sql
+
+      -- 开启并行化查询并关闭优化器
+      SET enable_parallel = ON;
+      SET optimizer=off;
+
+      -- 设置考虑 CPU cores 和 Segments 数
+      SET max_parallel_workers_per_gather = 4;
+
+      -- 文件个数，更多可能带来性能下降，尤其是 AOCO 表
+      SET gp_appendonly_insert_files = 8;
+
+      -- 每隔 10 万行换下一个文件，可根据情况调整，让数据尽量均匀分布在多个文件上。
+      SET gp_appendonly_insert_files_tuples_range = 100000;
+
+   详情参见用户文档\ :ref:`optimize-performance/execute-queries-in-parallel:并行执行查询`\ 。
+
+-  向量化查询。
+
+   在 HashData Lightning 中处理大规模数据集时，使用向量化执行引擎可以显著提高计算效率。通过将数据向量化，利用循环展开和 SIMD 指令集同时一次处理多行数据，从而减少函数调用的代价和缓存失效开销。开启向量查询后，执行带有 Scan、Join、Agg、Sort 等算子的查询时，数据库按照批的方式处理数据，而不是按照每条数据处理。
+
+   自 v1.4.0 起，HashData Lightning 已内置向量化执行引擎，可通过如下方式启用向量化查询：
+
+   .. code:: shell
+
+      gpconfig -c session_preload_libraries -v '${GPHOME}/lib/postgresql/${EXTENSION}.so'
+      gpstop -u
+
+   .. code:: sql
+
+      CREATE extension vectorization;
+
+      SET vector.enable_vectorization TO ON;
+
+      -- 设置 batch 数量
+      SET vector.hashdata_max_vectorization_cnt  ti 16384;
+
+   详情参见文档 :ref:`operate-with-data/advanced-data-analytics/vectorization-queries:vectorization 向量化查询计算`\ 。
+
+集群管理
+~~~~~~~~~~
+
+-  图形化界面部署。
+
+   自 v1.4.0 起，你可以使用内置的图形化部署工具来部署 HashData Lightning。相较于手动部署的方式，可视化部署更为简单直观，你只需要按照界面提示进行操作，无需复杂的命令和配置文件，从而使部署更加高效。
+
+   执行部署前，确保已经在每一台机器节点上安装数据库 RPM 包。图形化部署工具默认访问数据库节点服务器的 ``7788`` 端口。安装完成之后，所有节点的 ``7788`` 端口会默认打开。打开网址 ``http://<IP>:7788/``\ ，按照提示开始自动化部署过程。
+
+   详情参见文档\ :ref:`deploy-guides/physical-deploy/visualized-deploy:可视化部署`\ 。
+
+功能
+~~~~~~
+
+-  支持创建定时 Task。自 v1.4.0 起，你可以通过 ``CREATE TASK`` 语法来创建和管理任务，例如自动执行指定的 SQL 语句或脚本。
+
+   通过 ``CREATE TASK`` 语法，你可以按照一定的时间间隔或使用 Cron 表达式来调度任务，并可指定任务要在哪个数据库上运行。
+
+   -  创建一个任务的语法如下：
+
+      .. code:: sql
+
+         CREATE TASK [IF NOT EXISTS] <name> SCHEDULE '<num> SECONDS | <cron_expr>'
+             [DATABASE <db_name>]
+             [USER <username>]
+         AS
+             <sql>
+
+   -  查看任务状态。通过查询 ``pg_task`` 和 ``pg_task_run_history`` 两张系统表，你可以查看 Task 相关的信息。
+
+      -  要查看每个 Task 任务，包括其执行周期、执行的 SQL 命令，可以通过 ``\d pg_task`` 命令来查看 ``pg_task`` 系统表。
+
+      -  要查看 Task 执行的历史记录，包括执行的 SQL 命令、执行状态、执行结果等，可通过 ``\d pg_task_run_history`` 命令查看 ``pg_task_run_history`` 系统表。
+
+         .. code:: sql
+
+            postgres=# \d pg_task
+                        Table "pg_catalog.pg_task"
+            Column  |  Type   | Collation | Nullable | Default
+            ----------+---------+-----------+----------+---------
+            jobid    | oid     |           | not null |
+            schedule | text    | C         |          |
+            command  | text    | C         |          |
+            nodename | text    | C         |          |
+            nodeport | integer |           |          |
+            database | text    | C         |          |
+            username | text    | C         |          |
+            active   | boolean |           |          |
+            jobname  | text    | C         |          |
+            Indexes:
+                "pg_task_jobid_index" PRIMARY KEY, btree (jobid), tablespace "pg_global"
+                "pg_task_jobname_username_index" UNIQUE CONSTRAINT, btree (jobname, username), tablespace "pg_global"
+            Tablespace: "pg_global"
+
+         .. code:: sql
+
+            postgres=# \d pg_task_run_history
+                            Table "pg_catalog.pg_task_run_history"
+                Column     |           Type           | Collation | Nullable | Default
+            ----------------+--------------------------+-----------+----------+---------
+            runid          | oid                      |           | not null |
+            jobid          | oid                      |           | not null |
+            job_pid        | integer                  |           | not null |
+            database       | text                     | C         |          |
+            username       | text                     | C         |          |
+            command        | text                     | C         |          |
+            status         | text                     | C         |          |
+            return_message | text                     | C         |          |
+            start_time     | timestamp with time zone |           |          |
+            end_time       | timestamp with time zone |           |          |
+            Indexes:
+                "pg_task_run_history_runid_index" PRIMARY KEY, btree (runid), tablespace "pg_global"
+                "pg_task_run_history_jobid_index" btree (jobid), tablespace "pg_global"
+            Tablespace: "pg_global"
+
+   详情参见文档\ :ref:`operate-with-data/auto-execute-sql-commands:自动化执行 sql 语句`\ 。
+
+存储
+~~~~~~
+
+-  支持 UnionStore 存储引擎。
+
+   UnionStore 是面向 Heap 表及其索引的新存储引擎，结合 HashData Lightning 构成计算和存储相分离的架构。这种架构能高效支持典型的 Heap 表应用场景，比如频繁更新和删除少量数据。UnionStore 支持多租户、单租户多实例的读写，可实现资源有效利用，多集群共享同一份数据。
+
+   UnionStore 的核心思想是 "Log is database"，通过持久化计算层日志并进行日志 replay 来构建数据，以供计算层查询。
+
+   UnionStore 的具体使用方法，参考 :ref:`operate-with-data/operate-with-database-objects/choose-table-storage-models/unionstore-table-format:unionstore 存储格式`\ 。
+
+扩展
+~~~~~~
+
+-  支持 Kafka FDW。
+
+   Kafka Foreign Data Wrapper (FDW) 提供了 HashData Lightning 与 Apache Kafka 连接的能力，使得数据库能够直接从 Kafka 中读取数据，并将其作为外部表来处理。HashData Lightning 用户可以更高效、灵活、可靠地处理 Kafka 中的实时数据，从而提高数据处理能力和业务效率。
+
+   Kafka FDW 内置于 HashData Lightning 安装包内，你无需额外安装。使用方法如下：
+
+   .. code:: sql
+
+      CREATE EXTENSION kafka_fdw；
+
+      CREATE SERVER kafka_server
+      FOREIGN DATA WRAPPER kafka_fdw
+      OPTIONS (mpp_execute 'all segments', brokers 'localhost:9092');
+
+      CREATE USER MAPPING FOR PUBLIC SERVER kafka_server;
+
+      CREATE FOREIGN TABLE kafka_test (
+          part int OPTIONS (partition 'true'),
+          offs bigint OPTIONS (offset 'true'),
+          some_int int,
+          some_text text,
+          some_date date,
+          some_time timestamp
+      )
+      SERVER kafka_server OPTIONS
+          (format 'csv', topic 'contrib_regress_csv', batch_size '1000', buffer_delay '1000');
+      -- batch_size：从 Kafka 读取一次数据的量
+      -- buffer_delay：从 Kafka 获取数据的超时时间
+      -- 目前仅支持 CSV 和 JSON 两种数据格式
+
+   详情参见文档\ :ref:`load-data/load-data-from-kafka:从 kafka 加载数据`\ 。
+
+-  支持向量检索插件 pgvector。
+
+   pgvector 是一款开源的向量相似搜索插件，支持精确和近似最近邻搜索，以及 L2 距离、内积和余弦距离。自 v1.4.0 起，HashData Lightning 支持通过 SQL 语句使用 pgvector 来进行数据存储、查询、索引、混合搜索等操作。
+
+   pgvector 已内置于 HashData Lightning 安装包内，无需额外安装。可通过 SQL 命令 ``CREATE EXTENSION vector;`` 开始使用插件。
+
+   详情参见文档 :ref:`operate-with-data/advanced-data-analytics/pgvector-search:pgvector 向量相似搜索`\ 。
+
+安全
+~~~~~~
+
+-  支持透明数据加密 (TDE)。
+
+   为了更好地保护用户数据安全，自 v1.4.0 起，HashData Lightning 支持透明数据加密 TDE (Transparent Data  Encryption)。数据透明加密是数据库用于加密数据文件的一种技术。
+
+   “数据”指数据库数据。文件在硬盘上是密文，在内存中是明文。TDE 解决了保护静止数据的问题，也称为静态数据加密。“透明”是指加密对用户来说是透明的，用户无需更改原有的操作习惯，用户和应用程序都无需关注密钥管理或者加密/解密过程。
+
+   使用方式：确保已安装 OpenSSL。在部署 HashData Lightning 时，使用 ``gpinitsystem`` 进行初始化数据库时候，指定 ``-T`` 参数即可开启 TDE。HashData Lightning 支持 AES 和 SM4 两种加密算法，开启的方法如下：
+
+   .. code:: bash
+
+      # 开启TDE特性，并指定加密算法为 AES
+      gpinitsystem -c gpinitsystem_config -T AES256
+
+      # 开启TDE特性，并指定加密算法为 SM4
+      gpinitsystem -c gpinitsystem_config -T SM4
+
+   详情参见文档\ :ref:`manage-system/set-security-and-permission/use-tde-to-encrypt-data:透明数据加密`\ 。
+
+变更说明
+----------
+
+SQL 语法变更说明
+~~~~~~~~~~~~~~~~
+
+无
+
+功能变更说明
+~~~~~~~~~~~~~
+
+无
+
+参数变更说明
+~~~~~~~~~~~~
+
+无
+
+Bug 修复
+--------
+
+-  修复了 AOCO 表内存越界的问题。该 Bug 导致的报错如下所示：
+
+   .. code:: sql
+
+      SET default_table_access_method=ao_column;
+      CREATE temp TABLE nocolumns();
+
+      SELECT EXISTS(SELECT * FROM nocolumns);
+
+      WARNING:  detected write past chunk end in ExecutorState 0x8f79b78  (seg0 slice1 127.0.1.1:7002 pid=16215)
+
+-  修复了在 AOCO 表上初始化 Rescan 报错的问题。该 Bug 导致的报错如下所示：
+
+   .. code:: sql
+
+      SELECT pct, count(unique1) FROM  (VALUES (0),(100)) v(pct),  LATERAL (select * from tenk1 tablesample system (pct)) ss   group by pct;
+
+      ERROR:  Unexpected internal error (assert.c:48)  (seg2 slice1 127.0.1.1:7004 pid=25898) (assert.c:48)DETAIL:  FailedAssertion("scan->columnScanInfo.relationTupleDesc", File: "aocsam.c", Line: 302)
+
+-  修复了特定情况下执行计划中出现错误的 Locus 信息。
+
+-  修复前执行计划中的错误 Locus 信息：
+
+   .. code:: sql
+
+      explain(costs off, locus) select distinct min(c1), max(c1) from t1;
+      QUERY PLAN
+      ----------
+
+      Unique
+      Locus: Entry
+      Group Key: (min(c1)), (max(c1))
+      ->  Sort
+      Locus: SingleQE
+      Sort Key: (min(c1)), (max(c1))
+      ->  Aggregate
+      Locus: SingleQE
+      ->  Gather Motion 3:1  (slice1; segments: 3)
+      Locus: SingleQE
+      ->  Seq Scan on t1
+      Locus: Hashed
+
+-  修复后执行计划中的正确 Locus 信息：
+
+   .. code:: sql
+
+      explain(costs off, locus) select distinct min(f1), max(f1) from t1;
+                              QUERY PLAN
+      ------------------------------------------------------------
+      Unique
+      Locus: Entry
+      Group Key: (min(f1)), (max(f1))
+      ->  Sort
+              Locus: Entry
+              Sort Key: (min(f1)), (max(f1))
+              ->  Aggregate
+                  Locus: Entry
+                  ->  Gather Motion 3:1  (slice1; segments: 3)
+                          Locus: Entry
+                          ->  Seq Scan on t1
+                              Locus: Hashed
