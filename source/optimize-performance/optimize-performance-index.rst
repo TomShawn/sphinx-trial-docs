@@ -3,6 +3,8 @@
 
 .. toctree::
    :maxdepth: 0
+   :titlesonly:
+   :hidden:
 
    optimize-performance-overview
    update-statistics

@@ -3,6 +3,8 @@
 
 .. toctree:: 
    :maxdepth: 0
+   :titlesonly:
+   :hidden:
 
    zombodb
    web-platform

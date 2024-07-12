@@ -3,6 +3,8 @@
 
 .. toctree:: 
    :maxdepth: 0
+   :titlesonly:
+   :hidden:
 
    pgvector-search
    vectorization-queries

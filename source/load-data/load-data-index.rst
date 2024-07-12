@@ -3,6 +3,8 @@
 
 .. toctree::
    :maxdepth: 0
+   :titlesonly:
+   :hidden:
 
    load-data-overview
    load-data-from-local-files/load-data-from-local-files-index

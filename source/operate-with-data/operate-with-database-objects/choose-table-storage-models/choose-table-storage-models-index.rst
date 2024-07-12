@@ -3,6 +3,8 @@
 
 .. toctree:: 
    :maxdepth: 0
+   :titlesonly:
+   :hidden:
 
    unionstore-table-format
    pax-table-format
