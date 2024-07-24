@@ -3,11 +3,7 @@ PAX 存储格式
 
 HashData Lighting 支持 PAX (Partition Attributes Across) 存储格式。
 
-PAX 是一种数据库存储格式，它结合了行式存储 (NSM，N-ary Storage Model)
-和列式存储 (DSM，Decomposition Storage Model)
-的优点，旨在提高数据库的查询性能，尤其是在缓存效率方面。在 OLAP
-场景下，PAX 拥有媲美行式存储的批量写入性能和列式存储的读取性能。PAX
-既能适应云环境下基于对象存储的存储模型，也能适应于线下传统基于物理文件的存储方式。
+PAX 是一种数据库存储格式，它结合了行式存储 (NSM，N-ary Storage Model) 和列式存储 (DSM，Decomposition Storage Model) 的优点，旨在提高数据库的查询性能，尤其是在缓存效率方面。在 OLAP 场景下，PAX 拥有媲美行式存储的批量写入性能和列式存储的读取性能。PAX 既能适应云环境下基于对象存储的存储模型，也能适应于线下传统基于物理文件的存储方式。
 
 与传统存储格式相比，PAX 还有以下特性：
 
@@ -102,6 +98,18 @@ PAX 的混合存储能力使其适合于需要处理大量数据写入和频繁�
       ---------+--------
       t1      | pax
       (1 row)
+
+对 TOAST 数据类型的支持
+------------------------
+
+PAX 完整地支持了 TOAST（即 The Oversized-Attribute Storage Technique）的 4 种存储方式：
+
+-  ``PLAIN`` 不允许压缩和线外存储。对于不支持 ``TOAST`` 数据类型的列，这是唯一可能的策略。
+-  ``EXTENDED`` 允许压缩和线外存储。这是大多数 ``TOAST`` 数据类型的默认设置。首先尝试压缩，如果行仍然太大，则使用线外存储。
+-  ``EXTERNAL`` 只允许线外存储，不允许压缩。``EXTERNAL`` 对于宽文本和 ``bytea`` 列的子字符串操作更快（以增加存储空间为代价），因为这些操作经过优化，可以在未压缩的情况下取得部分数据。
+-  ``MAIN`` 允许压缩，但不允许线外存储。实际上，Heap 表仍然会对这些列进行线外存储，但只作为没有其他方法使行足够小以适应页面时的最后手段。但 PAX 在这一点上会进行任何线外存储。
+
+与其他存储格式一样，PAX 默认开启 ``TOAST`` 生成，且 PAX 不依赖于 Page 管理数据，这意味着 PAX 可以存储超过 2 MiB 的数据。更多有关 ``TOAST`` 的内容，请参考 `PostgreSQL 文档 - TOAST <https://www.postgresql.org/docs/14/storage-toast.html>`_\ 。
 
 使用限制
 --------

@@ -8,3 +8,4 @@
 
    manual-deploy/manual-deploy-index
    visualized-deploy
+   web-platform-independent-deploy

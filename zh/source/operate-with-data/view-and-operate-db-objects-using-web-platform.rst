@@ -7,18 +7,19 @@ HashData Lightning Web Platform （下称 Web Platform）是一个部署和管�
 
 .. attention::
 
-   对于当前版本，只有通过 HashData Lightning Web Platform :ref:`可视化方法部署 <deploy-guides/physical-deploy/visualized-deploy:可视化部署>`\ 的集群，才支持访问并操作数据库的 Worksheet，以及使用内置的 SQL 编辑器。
+   对于当前版本，你有两种方式访问 Web Platform 面板：
+   
+   -  如果你的 HashData Lightning 集群是通过\ :ref:`可视化方法部署 <deploy-guides/physical-deploy/visualized-deploy:可视化部署>`\ 的，Web Platform 面板已经内置在集群中，你只需在浏览器里访问 ``http://<IP>:7788/`` 即可，其中 ``<IP>`` 为任一节点的 IP 地址。
 
-   对于使用\ :ref:`手动方法部署 <deploy-guides/physical-deploy/manual-deploy/deploy-multi-nodes:部署多计算节点>`\ 的已有集群，目前暂不支持访问和操作数据库的工作表以及不支持使用内置的 SQL 编辑器。
+   -  如果你的 HashData Lightning 集群是通过\ :ref:`手动方法部署 <deploy-guides/physical-deploy/manual-deploy/deploy-multi-nodes:部署多计算节点>`\ 的，你需要先单独安装 Web Platform 组件，参考\ :ref:`components/web-platform:在已有 hashdata lightning 集群上安装 web platform`\ 。安装后，再在浏览器里访问 ``http://<IP>:7788/`` 以访问 Web Platform 面板。
 
 访问工作表
 ----------
 
 要访问\ **工作表**\ 页面，你需要：
 
-1. 确保当前集群是通过可视化部署方法部署的。详情参见\ :ref:`可视化方法部署 <deploy-guides/physical-deploy/visualized-deploy:可视化部署>`\ 。
-2. 在浏览器中通过 ``http://<集群节点 IP>:7788/`` 访问 Web Platform 面板。
-3. 在左侧导航点击\ **工作表**\ ，即可进入该页面。
+1. 在浏览器中通过 ``http://<集群节点 IP>:7788/`` 访问 Web Platform 面板。
+2. 在左侧导航点击\ **工作表**\ ，即可进入该页面。
 
 操作工作表
 ----------

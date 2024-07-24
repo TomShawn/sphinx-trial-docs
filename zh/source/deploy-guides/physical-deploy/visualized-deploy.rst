@@ -3,16 +3,12 @@
 
 HashData Lightning Web Platform 是一个部署和管理 HashData Lightning 集群的控制台工具，提供简单直观的用户界面。相较于手动部署的方式，可视化部署更为简单直观，你只需要按照界面提示进行操作即可，无需理解复杂的命令和配置文件，从而使部署更加高效。你可以使用 HashData Lightning Web Platform 部署 HashData Lightning。
 
-适用版本说明
-------------
-
-确保你要部署的 HashData Lightning 版本不低于 v1.5.4。
-
 部署集群
 --------
 
-本节介绍如何使用 HashData Lightning Web Platform 在物理机上部署 HashData
-Lightning。
+本节介绍如何使用 HashData Lightning Web Platform 在物理机上部署 HashData Lightning。
+
+如果你已有一套通过手动方式部署的 HashData Lightning 集群（v1.5.4 及以上版本），并希望在集群中使用 Web Platform 的监控面板等功能，可以参考\ :ref:`deploy-guides/physical-deploy/web-platform-independent-deploy:在已有 hashdata lightning 集群上安装 web platform`\ 。
 
 软硬件配置需求
 ~~~~~~~~~~~~~~
@@ -65,6 +61,9 @@ HashData Lightning 支持在以下操作系统及 CPU 架构上部署，详情�
       * - 6
         - ``tail -11 /proc/cpuinfo``
         - 查看 CPU 信息。
+      * - 7
+        - ``rpm -iq cloudberry-db``
+        - 检查之前是否安装过 HashData Lightning 软件包。详情参见本文\ :ref:`deploy-guides/physical-deploy/visualized-deploy:故障排查`\ 部分。
 
 2. 在每台节点服务器上创建 ``gpadmin`` 管理用户。参考以下示例，创建用户组和用户名 ``gpadmin``\ ，将用户组和用户名的标识号设为 ``520``\ ，创建并指定主目录 ``/home/gpadmin/``\ 。
 
@@ -191,7 +190,7 @@ HashData Lightning 支持在以下操作系统及 CPU 架构上部署，详情�
 
    -  **数据镜像**\ 决定了集群数据节点是否包含备份镜像，建议在生产环境中启用，以确保集群高可用。
 
-   -  修改 ``gpmon`` 密码，勾选\ **允许远程连接数据库**\ 。
+   -  修改 ``gpmon`` 密码。
 
    .. image:: /images/web-platform-deploy-multi.png
 
@@ -211,20 +210,6 @@ HashData Lightning 支持在以下操作系统及 CPU 架构上部署，详情�
    .. code:: shell
 
       sudo chown -R gpadmin:gpadmin /usr/local/cloudberry-db/cloudberryUI/resources
-
--  打开远程连接。
-
-   HashData Lightning 支持远程连接。如果在配置集群参数时，没有勾选“允许远程连接至数据库”（即在上面“多节点部署”的第 3 步），可以在 ``$COORDINATOR_DATA_DIRECTORY/pg_hba.conf`` 文件中添加以下行，表示允许来自任何 IP 的用户通过密码认证连接。为了保证数据库安全，请根据实际需要限定 IP 范围或者数据库名称。关于 ``pg_hba.conf``\ ，我们有自动生成的一个初始化版本，本系统支持工程师根据现场实际情况根据安全需求自行配置，我们推荐您检查 ``pg_hba.conf``\ 。
-
-   .. code:: shell
-
-      host  all       all   0.0.0.0/0  md5
-
-   完成修改后，执行以下命令使数据库重新加载 ``pg_hba.conf`` 配置文件：
-
-   .. code:: shell
-
-      gpstop -u
 
 -  你可以通过以下命令分别完成 HashData Lightning 的启动、停止、重启以及状态查看。
 
@@ -248,7 +233,9 @@ HashData Lightning 支持在以下操作系统及 CPU 架构上部署，详情�
 故障排查
 --------
 
--  通过 ``http://<IP>:7788/`` 登录图形界面后，如果提示集群节点没有连接，或者卡在收集主机信息的环节，建议确保各节点之间的 SSH 互信已配置好，并执行以下命令重启节点：
+-  通过 ``http://<IP>:7788/`` 登录图形界面后，如果提示集群节点没有连接 ``Got a 404 error Response status``\ ，或者卡在收集主机信息的环节，建议确保各节点之间的 SSH 互信已配置好，并执行以下命令重启节点：
+
+   .. image:: /images/web-platform-deploy-collecting-info.png
 
    .. code:: shell
 
@@ -258,3 +245,34 @@ HashData Lightning 支持在以下操作系统及 CPU 架构上部署，详情�
       ./cbuiserver
 
 -  如果节点机器在此前进行过可视化部署，你希望在这些机器上重新安装 RPM 包，请在安装前，在每台机器上先执行 ``sudo pkill cbuiserver``\ ，再清空 ``/usr/local/cloudberry-db`` 目录。
+
+   1. 在每台机器上卸载之前的 RPM 包。
+   
+      .. code-block:: bash
+
+         # 检查是否安装过 HashData Lightning 软件包。
+         # 如果有，会返回 <安装包名>，例如 cloudberry-db-1.6.0-1.el8.x86_64。
+         rpm -iq cloudberry-db
+
+         # 执行命令删除软件包
+         sudo yum remove -y cloudberry-db-1.6.0-1.el8.x86_64
+
+   2. 在每台机器上，执行以下命令清理环境。
+   
+   .. code-block:: bash
+
+      sudo pkill postgres
+      sudo rm -rf /data*
+      rm -rf /tmp/.s*
+      sudo pkill cbuiserver
+
+
+
+后续操作
+----------
+
+通过可视化方法部署好一套 HashData Lightning 集群后，你可以通过 Web Platform 界面进行如下操作：
+
+-  :ref:`operate-with-data/view-and-operate-db-objects-using-web-platform:使用 web platform 查看和操作数据库对象`
+-  :ref:`components/web-platform:在网页编辑器中执行 sql 语句`
+-  :ref:`manage-system/web-platform-monitoring/web-platform-monitoring-index:使用 web platform 查看集群监控数据`
