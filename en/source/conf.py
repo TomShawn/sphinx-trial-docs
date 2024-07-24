@@ -24,14 +24,15 @@ extensions = [
     'rst2pdf.pdfbuilder',
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.intersphinx',
-    'sphinx_tabs.tabs'
+    'sphinx_tabs.tabs',
+    'docxbuilder'
 ]
 source_suffix = {
     '.rst': 'restructuredtext',
     '.md': 'markdown',
 }
 
-master_doc = 'index'
+master_doc = 'index-main'
 
 needs_sphinx = '3.0'
 language = 'en'
