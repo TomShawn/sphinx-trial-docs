@@ -1,3 +1,7 @@
+.. raw:: latex
+
+   \newpage
+
 从 Kafka 加载数据
 =================
 

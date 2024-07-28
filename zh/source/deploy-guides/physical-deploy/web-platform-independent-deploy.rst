@@ -1,3 +1,7 @@
+.. raw:: latex
+
+   \newpage
+
 在已有 HashData Lightning 集群上安装 Web Platform
 ==================================================
 

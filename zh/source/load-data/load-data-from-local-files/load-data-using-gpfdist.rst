@@ -1,3 +1,7 @@
+.. raw:: latex
+
+   \newpage
+
 使用 gpfdist 加载数据
 =====================
 

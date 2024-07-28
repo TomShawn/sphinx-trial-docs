@@ -11,10 +11,10 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.append('.')
 
-project = 'HashData Lightning Web Platform 文档'
+project = 'HashData Lightning 文档'
 copyright = '2024, HashData'
 author = 'HashData'
-release = 'v1.5.4'
+release = 'v1.6.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -100,7 +100,7 @@ latex_elements = {
 \usepackage{multirow}
 \usepackage{titlesec}
 \usepackage{tocloft}
-% \newcommand{\sectionbreak}{\clearpage}
+\newcommand{\sectionbreak}{\clearpage}
 \renewcommand{\cftsecnumwidth}{2.5em}
 \renewcommand{\cftsubsecnumwidth}{3.5em}
 \renewcommand{\cftsubsubsecnumwidth}{4.5em}
@@ -138,5 +138,28 @@ latex_elements = {
 \makeatother
 
 \usepackage{multirow}
+
+
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\pagestyle{fancy}
+
+% 清除默认设置
+\fancyhf{}
+
+% 调整章节标题格式，防止页眉和章节标题重叠
+\usepackage{titlesec}
+
+% 自定义页脚格式
+\fancyfoot[R]{\chaptername\ \thechapter：\nouppercase{\rightmark}}
+
+% 设置 chapter 标题居中，并使用“第 X 章”格式
+\titleformat{\chapter}[display]
+{\normalfont\LARGE\bfseries\centering}{第 \thechapter 章}{40pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{50pt}{40pt}
+
+% 自定义章节标题格式
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+
 '''
 }

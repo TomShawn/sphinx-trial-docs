@@ -1,3 +1,7 @@
+.. raw:: latex
+
+   \newpage
+
 使用 RoaringBitMap 位图运算
 ============================
 

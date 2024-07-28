@@ -1,3 +1,7 @@
+.. raw:: latex
+
+   \newpage
+
 Vectorization 向量化查询计算
 ============================
 

@@ -1,3 +1,7 @@
+.. raw:: latex
+
+   \newpage
+
 HashData Lightning Web Platform 使用说明
 ==========================================
 
