@@ -14,6 +14,7 @@
    :align: left
 
    * - 功能名/版本号
+     - 1.6.0
      - 1.5.4
      - 1.5.3
      - 1.5.2
@@ -30,10 +31,12 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
    * - :ref:`optimize-performance/optimize-hashjoin-query-performance:优化 hashjoin 查询性能`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -50,10 +53,12 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
    * - :ref:`optimize-performance/create-index-in-parallel:并发创建索引`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -69,21 +74,24 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
      - ❌
    * - :ref:`operate-with-data/advanced-data-analytics/vectorization-queries:Vectorization 向量化查询计算`
      - ✅
-     - ✅（新增支持 Numeric 数据类型）
      - ✅
-     - ✅（新增若干算子）
+     - ✅ [1]_
+     - ✅
+     - ✅ [2]_
      - ✅
      - ❌
      - ❌
      - ❌
      - ❌
    * - :ref:`optimize-performance/create-ao-aoco-tables-in-parallel-and-refresh-mtv:并行创建 AO/AOCO 表与刷新物化视图`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -98,6 +106,7 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
@@ -108,12 +117,14 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
      - ❌
      - ❌
    * - :ref:`optimize-performance/use-unique-index-on-ao-tables:在 AO 表上使用唯一索引`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -132,6 +143,7 @@
    :align: left
 
    * - 功能名/版本号
+     - 1.6.0
      - 1.5.4
      - 1.5.3
      - 1.5.2
@@ -151,7 +163,9 @@
      - ✅
      - ✅
      - ✅
+     - ✅
    * - :ref:`operate-with-data/operate-with-database-objects/choose-table-storage-models/unionstore-table-format:UnionStore 存储格式`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -162,6 +176,7 @@
      - ❌
      - ❌
    * - :ref:`operate-with-data/operate-with-database-objects/choose-table-storage-models/pax-table-format:PAX 存储格式`
+     - ✅ [7]_
      - ✅
      - ✅
      - ❌
@@ -180,6 +195,7 @@
    :align: left
 
    * - 功能名/版本号
+     - 1.6.0
      - 1.5.4
      - 1.5.3
      - 1.5.2
@@ -196,10 +212,12 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
    * - :ref:`manage-system/set-security-and-permission/check-password-security:检查密码安全性`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -216,10 +234,12 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
    * - :ref:`manage-system/set-security-and-permission/use-tde-to-encrypt-data:透明数据加密`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -234,12 +254,14 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
      - ❌
      - ❌
    * - :ref:`manage-system/set-security-and-permission/use-pgaudit:日志审计 pgaudit`
+     - ✅
      - ✅ 
      - ✅
      - ❌
@@ -258,6 +280,7 @@
    :align: left
 
    * - 功能名/版本号
+     - 1.6.0
      - 1.5.4
      - 1.5.3
      - 1.5.2
@@ -268,6 +291,7 @@
      - 1.1.0
      - 1.0.0
    * - 高可用 FTS 说明
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -287,6 +311,7 @@
      - ✅
      - ✅
      - ✅
+     - ✅
 
 部署、运维、可视化和工具
 ------------------------
@@ -296,6 +321,7 @@
    :align: left
 
    * - 功能名/版本号
+     - 1.6.0
      - 1.5.4
      - 1.5.3
      - 1.5.2
@@ -312,10 +338,12 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
    * - :ref:`deploy-guides/physical-deploy/visualized-deploy:可视化部署`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -331,11 +359,13 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
      - ❌
    * - :ref:`operate-with-data/view-and-operate-db-objects-using-web-platform:在网页编辑器中执行 sql 语句`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -350,12 +380,14 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
      - ❌
      - ❌
-   * - 使用 gp-demo 快速部署集群
+   * - 使用 ``gpdemo`` 快速部署集群
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -369,6 +401,7 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
@@ -379,6 +412,7 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
@@ -386,6 +420,7 @@
      - ❌
      - ❌
    * - :ref:`manage-system/web-platform-monitoring/web-platform-monitoring-index:使用 web platform 查看集群监控数据`
+     - ✅
      - ✅
      - ❌
      - ❌
@@ -404,6 +439,7 @@
    :align: left
 
    * - 功能名/版本号
+     - 1.6.0
      - 1.5.4
      - 1.5.3
      - 1.5.2
@@ -417,7 +453,8 @@
      - ✅
      - ✅
      - ✅
-     - ✅（新增支持 SSL）
+     - ✅
+     - ✅ [3]_
      - ✅
      - ✅
      - ❌
@@ -425,9 +462,10 @@
      - ❌
    * - :ref:`operate-with-data/advanced-data-analytics/vectorization-queries:vectorization 向量化查询计算`
      - ✅
-     - ✅（新增支持 Numeric 数据类型）
      - ✅
-     - ✅（新增若干算子）
+     - ✅ [4]_
+     - ✅
+     - ✅ [5]_
      - ✅
      - ❌
      - ❌
@@ -437,13 +475,15 @@
      - ✅
      - ✅
      - ✅
-     - ✅（新增支持索引运算）
+     - ✅
+     - ✅ [6]_
      - ✅
      - ❌
      - ❌
      - ❌
      - ❌
    * - :ref:`operate-with-data/advanced-data-analytics/directory-tables:使用目录表纳管非结构化文件`
+     - ✅
      - ✅
      - ✅
      - ❌
@@ -454,6 +494,7 @@
      - ❌
      - ❌
    * - :ref:`operate-with-data/advanced-data-analytics/roaringbitmap:使用 roaringbitmap 位图运算`
+     - ✅
      - ✅
      - ✅
      - ❌
@@ -468,12 +509,14 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
      - ❌
      - ❌
    * - :ref:`operate-with-data/advanced-data-analytics/madlib-machine-learning:使用 madlib 进行机器学习和深度学习`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -488,12 +531,14 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
      - ❌
      - ❌
    * - PL/Java
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -512,6 +557,7 @@
    :align: left
 
    * - 功能名/版本号
+     - 1.6.0
      - 1.5.4
      - 1.5.3
      - 1.5.2
@@ -531,7 +577,9 @@
      - ✅
      - ✅
      - ✅
+     - ✅
    * - :ref:`load-data/load-data-from-local-files/load-data-using-copy:使用 copy 加载数据`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -551,7 +599,9 @@
      - ✅
      - ✅
      - ✅
+     - ✅
    * - :ref:`load-data/load-data-from-local-files/load-data-using-gpload:使用 gpload 加载数据`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -567,11 +617,13 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
      - ❌
    * - :ref:`load-data/load-data-from-oss-and-hdfs:从对象存储和 hdfs 加载数据`
+     - ✅
      - ✅
      - ✅
      - ✅
@@ -584,6 +636,7 @@
    * - :ref:`load-data/load-data-from-hive:从 hive 数仓加载数据`
      - ✅
      - ✅
+     - ✅
      - 新增支持加载 Iceberg 和 Hudi 表
      - ✅
      - ❌
@@ -592,6 +645,7 @@
      - ❌
      - ❌
    * - 从 Spark 加载数据
+     - ✅
      - ❌
      - ❌
      - ❌
@@ -606,8 +660,23 @@
      - ✅
      - ✅
      - ✅
+     - ✅
      - ❌
      - ❌
      - ❌
      - ❌
      - ❌
+
+.. [1] 新增支持 Numeric 数据类型。
+
+.. [2] 新增若干算子。
+
+.. [3] 新增支持 SSL。
+
+.. [4] 新增支持 Numeric 数据类型。
+
+.. [5] 新增若干算子。
+
+.. [6] 新增支持索引运算。
+
+.. [7] 新增对 ``TOAST`` 数据类型的支持。

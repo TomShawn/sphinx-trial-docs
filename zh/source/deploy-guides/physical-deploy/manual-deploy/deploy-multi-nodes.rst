@@ -117,6 +117,7 @@
 
       .. code:: bash
 
+         [gpadmin@cbdb-coordinator ~]$ source /usr/local/cloudberry-db/greenplum_path.sh
          [gpadmin@cbdb-coordinator ~]$ gpssh -f all_hosts
          => pwd
          [ cbdb-datanode03] b'/usr/local/cloudberry-db\r'
@@ -125,8 +126,6 @@
          [cbdb-standbycoordinator] b'/usr/local/cloudberry-db\r'
          [ cbdb-datanode01] b'/usr/local/cloudberry-db\r'
          =>
-
-      若无法执行 ``gpssh``\ ，可在 Coordinator 节点先执行如下命令 ``source /usr/local/cloudberry-db/greenplum_path.sh``\ 。
 
 第 4 步：初始化 HashData Lightning
 ----------------------------------

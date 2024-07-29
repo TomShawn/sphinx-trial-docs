@@ -393,16 +393,11 @@ HashData Lightning 的磁盘类型、操作系统以及调度策略如下：
 SSH 连接数阈值设置
 ^^^^^^^^^^^^^^^^^^
 
-要设置 SSH 连接数阈值，你需要修改 ``/etc/ssh/sshd_config`` 配置文件中的 ``MaxStartups`` 以及 ``MaxSessions`` 参数。以下两种写法均可。
+要设置 SSH 连接数阈值，你需要修改 ``/etc/ssh/sshd_config`` 配置文件中的 ``MaxStartups`` 以及 ``MaxSessions`` 参数。
 
 ::
 
    MaxStartups 200
-   MaxSessions 200
-
-::
-
-   MaxStartups 10:30:200
    MaxSessions 200
 
 执行如下命令重启服务器使得设置生效：
