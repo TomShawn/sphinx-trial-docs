@@ -3,8 +3,8 @@
 
 .. toctree::
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
 
    load-data-using-copy
    load-data-using-gpfdist

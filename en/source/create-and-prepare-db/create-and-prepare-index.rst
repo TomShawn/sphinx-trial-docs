@@ -3,8 +3,8 @@
 
 .. toctree::
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
 
    create-and-manage-db
    start-and-stop-db

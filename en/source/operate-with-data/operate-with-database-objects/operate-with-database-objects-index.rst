@@ -3,8 +3,8 @@
 
 .. toctree:: 
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
 
    basic-query-syntax
    create-and-manage-tables

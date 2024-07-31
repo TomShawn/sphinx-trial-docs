@@ -3,8 +3,8 @@
 
 .. toctree::
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
 
    manual-deploy/manual-deploy-index
    visualized-deploy

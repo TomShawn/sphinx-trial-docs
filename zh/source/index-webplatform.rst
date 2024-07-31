@@ -4,8 +4,8 @@ HashData Lightning Web Platform 文档
 
 .. toctree::
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
    :caption: 目录
 
    deploy-guides/physical-deploy/visualized-deploy

@@ -4,8 +4,8 @@ HashData Lightning 文档
 
 .. toctree::
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
    :caption: 目录
 
    product-overview/product-index

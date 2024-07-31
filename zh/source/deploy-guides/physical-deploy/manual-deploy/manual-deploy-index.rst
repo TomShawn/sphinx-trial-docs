@@ -3,8 +3,8 @@
 
 .. toctree::
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
 
    software-and-hardware-config-requirements
    prepare-to-deploy

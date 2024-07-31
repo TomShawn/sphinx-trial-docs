@@ -7,6 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import os
 import sys
+import sphinx_material
 
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.append('.')
@@ -25,14 +26,16 @@ extensions = [
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.intersphinx',
     'sphinx_tabs.tabs',
-    'docxbuilder'
+    'docxbuilder',
+    'sphinx_material'
 ]
 source_suffix = {
     '.rst': 'restructuredtext',
     '.md': 'markdown',
 }
 
-master_doc = 'index-main'
+master_doc = 'index'
+templates_path = ['_templates']
 
 needs_sphinx = '3.0'
 language = 'zh_CN'
@@ -42,49 +45,45 @@ autosectionlabel_prefix_document = True
 # -- HTML configuration ---------------------------------------------------
 
 # Required theme setup
-html_theme = "sphinx_rtd_theme"
+
+html_theme = 'sphinx_material'
+html_title = 'HashData Lightning 用户文档'
+
+html_theme_options = {
+    # 'base_url': base_url,
+    'color_primary': 'blue',
+    'color_accent': 'blue',
+    'logo_icon': '&#xe150',
+    'master_doc': False,
+
+    # Set you GA account ID to enable tracking
+    # 'google_analytics_account': '142118122',
+
+    # Set the repo location to get a badge with stats
+    'repo_url': 'https://github.com/TomShawn/sphinx-trial-docs',
+    'repo_name': 'sphinx-trial-docs',
+
+    # Visible levels of the global TOC; -1 means unlimited
+    'globaltoc_depth': 4,
+    # If False, expand all TOC entries
+    'globaltoc_collapse': True,
+    # If True, show hidden TOC entries
+    'globaltoc_includehidden': False,
+
+    'show_theme_credit': False
+}
+
+html_theme_path = sphinx_material.html_theme_path()
+html_context = sphinx_material.get_html_context()
+html_sidebars = {
+    "**": ["logo-text.html", "globaltoc.html", "localtoc.html", "searchbox.html"]
+}
+
+html_static_path = ['_static']
+templates_path = ['_templates']
+
+# html_theme = "sphinx_rtd_theme"
 # html_logo = './images/hashdata-logo.png'
-
-# html_theme_options = {
-#     # Note how we can include links:
-#     "banner_text": 'This is a <a href="https://docs.hashdata.xyz/docs">HashData</a> product.',
-#     "show_theme_credit": False
-# }
-
-# # Set link name generated in the top bar.
-# html_title = 'HashData Lightning 用户文档'
-
-# # Material theme options (see theme.conf for more information)
-# html_theme_options = {
-
-#     # Set the name of the project to appear in the navigation.
-#     'nav_title': 'HashData Lightning 用户文档',
-
-#     # Specify a base_url used to generate sitemap.xml. If not
-#     # specified, then no sitemap will be built.
-#     #'base_url': 'https://project.github.io/project',
-
-#     # Set the color and the accent color
-#     'color_primary': 'blue',
-#     'color_accent': 'light-blue',
-
-#     # Set the repo location to get a badge with stats
-#     'repo_url': 'https://github.com/TomShawn/sphinx-trial-docs/',
-#     'repo_name': 'sphinx-trial-docs',
-
-#     # Visible levels of the global TOC; -1 means unlimited
-#     'globaltoc_depth': 3,
-#     # If False, expand all TOC entries
-#     'globaltoc_collapse': False,
-#     # If True, show hidden TOC entries
-#     'globaltoc_includehidden': True,
-# }
-
-# html_theme_path = sphinx_material.html_theme_path()
-# html_context = sphinx_material.get_html_context()
-# html_sidebars = {
-#     "**": ["logo-text.html", "globaltoc.html", "localtoc.html", "searchbox.html"]
-# }
 
 # -- PDF/LaTeX configuration ---------------------------------------------------
 
@@ -155,7 +154,7 @@ latex_elements = {
 
 % 设置 chapter 标题居中，并使用“第 X 章”格式
 \titleformat{\chapter}[display]
-{\normalfont\LARGE\bfseries\centering}{第 \thechapter 章}{40pt}{\Huge}
+{\normalfont\LARGE\bfseries\centering}{第 \thechapter 章}{60pt}{\Huge}
 \titlespacing*{\chapter}{0pt}{50pt}{40pt}
 
 % 自定义章节标题格式

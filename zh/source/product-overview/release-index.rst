@@ -4,8 +4,8 @@
 
 .. toctree::
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
 
    releases/v1.6.0
    releases/v1.5.4

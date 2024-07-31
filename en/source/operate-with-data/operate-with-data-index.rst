@@ -3,8 +3,8 @@
 
 .. toctree::
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
 
    operate-with-database-objects/operate-with-database-objects-index
    view-and-operate-db-objects-using-web-platform

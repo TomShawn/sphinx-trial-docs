@@ -3,8 +3,8 @@
 
 .. toctree:: 
    :maxdepth: 0
-   :titlesonly:
-   :hidden:
+   
+   
 
    set-password-policy
    check-password-security
