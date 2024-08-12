@@ -1,21 +1,21 @@
-从 Kafka 加载数据
-=================
+Load Data from Kafka Using Kafka FDW
+======================================
 
-Kafka Foreign Data Wrapper (FDW) 提供了 HashData Lightning 与 Apache Kafka 连接的能力，使得数据库能够直接从 Kafka 中读取数据，并将其作为外部表来处理。HashData Lightning 用户可以更高效、灵活、可靠地处理 Kafka 中的实时数据，从而提高数据处理能力和业务效率。
+Kafka Foreign Data Wrapper (FDW) enables HashData Lightning to connect directly to Apache Kafka, allowing it to read and operate on Kafka data as external tables. This integration allows HashData Lightning users to process real-time Kafka data more efficiently, flexibly, and reliably, greatly boosting data processing and business operations.
 
-HashData Lightning 支持使用 Kafka FDW 来创建外部表以及导入数据。
+Starting from v1.4.0, HashData Lightning supports using Kafka FDW to create external tables and import data.
 
-基本使用
---------
+Basic usage
+-----------
 
--  创建插件。
+-  Create the ``kafka_fdw`` extension:
 
    .. code:: sql
 
-      postgres=# create extension kafka_fdw;
+      postgres=# CREATE EXTENSION kafka_fdw;
       CREATE EXTENSION
 
--  创建外部服务器，指定 Kafka 的集群地址。
+-  Create an external server and specify Kafka's cluster address:
 
    .. code:: sql
 
@@ -23,17 +23,15 @@ HashData Lightning 支持使用 Kafka FDW 来创建外部表以及导入数据�
       FOREIGN DATA WRAPPER kafka_fdw
       OPTIONS (mpp_execute 'all segments', brokers 'localhost:9092');
 
-   .. note:: 你需要在语句中指定 ``mpp_execute 'all segments'`` 参数。
-
--  创建 user mapping。
+-  Create user mapping:
 
    .. code:: sql
 
       CREATE USER MAPPING FOR PUBLIC SERVER kafka_server;
 
--  创建外部表
+-  Create an external table:
 
-   创建外部表时，必须指定两个元数据信息列 ``partition`` 和 ``offset``\ ，用于标识 Kafka 中的一个 Topic 的消息所属的分区和偏移。下面是一个示例：
+   When creating an external table, you need to specify two metadata columns: ``partition`` and ``offset``, which identify the partition and offset of messages in a Kafka topic. Here is an example:
 
    .. code:: sql
 
@@ -48,35 +46,35 @@ HashData Lightning 支持使用 Kafka FDW 来创建外部表以及导入数据�
       SERVER kafka_server OPTIONS
           (format 'csv', topic 'contrib_regress_csv', batch_size '1000', buffer_delay '1000');
 
-   参数说明：
+   Parameter description:
 
-   -  ``batch_size``\ ：从 Kafka 读取一次数据的量。
-   -  ``buffer_delay``\ ：从 Kafka 获取数据的超时时间。
+   -  ``batch_size``: The size of data read from Kafka at once.
+   -  ``buffer_delay``: The timeout for getting data from Kafka.
 
-支持的数据格式
---------------
+Supported data formats
+----------------------
 
-目前支持 ``CSV`` 和 ``JSON`` 两种数据格式。
+Currently, ``CSV`` and ``JSON`` data formats are supported.
 
-查询
-----
+Query
+-----
 
-可以在查询的时候指定消息的分区和偏移，指定 ``partition`` 或 ``offset``\ ：
+You can specify the message partition and offset in your query by using the ``partition`` or ``offset`` column condition:
 
 .. code:: sql
 
    SELECT * FROM kafka_test WHERE part = 0 AND offs > 1000 LIMIT 60;
 
-也可以指定多个条件：
+You can also specify multiple conditions:
 
 .. code:: sql
 
    SELECT * FROM kafka_test WHERE (part = 0 AND offs > 100) OR (part = 1 AND offs > 300) OR (part = 3 AND offs > 700);
 
-消息生产者
-----------
+Message producer
+----------------
 
-目前 Kafka FDW 支持向外表中插入数据，即作为了 Kafka 的消息生产者。只需要使用 INSERT 语句即可。
+Currently, Kafka FDW supports inserting data into external tables, which acts as a message producer for Kafka. You only need to use the ``INSERT`` statement.
 
 .. code:: sql
 
@@ -88,14 +86,14 @@ HashData Lightning 支持使用 Kafka FDW 来创建外部表以及导入数据�
        (3, 5464565, 'some text goes into partition 3'),
        (NULL, 5464565, 'some text goes into partition selected by kafka');
 
-插入的时候可以指定 ``partition`` 表示插入到哪个分区。
+When inserting data, you can specify ``partition`` to specify which partition to insert into.
 
-数据导入功能
-------------
+Data import
+-----------
 
-如果想要通过 kafka FDW 实现类似数据导入的功能，你可以通过自定义函数来实现，例如 ``insert into select`` 语句，基本原理是将外表中的所有数据依次取出来插入到目标表中。
+To use Kafka FDW for data import, you can create custom functions, such as the ``INSERT INTO SELECT`` statement. The basic principle is to fetch all data from the external table and insert it into the target table sequentially.
 
-下面是一个简单的示例，你可以根据实际情况对此函数进行修改：
+Here is a simple example, which you can modify according to your needs:
 
 .. code:: sql
 
@@ -116,29 +114,29 @@ HashData Lightning 支持使用 Kafka FDW 来创建外部表以及导入数据�
 
        import_progress_table_name := src_table_name || '_import_progress';
 
-       -- 创建进度记录表
+       -- Creates progress record table.
        EXECUTE FORMAT('CREATE TABLE IF NOT EXISTS %I (part integer PRIMARY KEY, offs bigint NOT NULL)', import_progress_table_name);
-
-       -- 表的 topic 的 partition 数量有可能发生变化，所以每次导入前都要重新初始化
+       
+       -- The number of partitions in the topic table might change, so reinitialize before each import.
        EXECUTE FORMAT('INSERT INTO %I SELECT DISTINCT part, 0 FROM %I ON CONFLICT (part) DO NOTHING', import_progress_table_name, src_table_name);
-
-       -- 逐个分区导入数据
+       
+       -- Imports data partition by partition.
        FOR current_row IN
            EXECUTE FORMAT('SELECT part, offs FROM %I', import_progress_table_name)
        LOOP
            current_part := current_row.part;
            current_offs := current_row.offs;
-
-           -- 获取当前分区的最大 offset
+       
+           -- Gets the maximum offset for the current partition.
            EXECUTE FORMAT('SELECT MAX(offs) FROM %I WHERE part = %s', src_table_name, current_part) INTO max_off_result;
            max_off := max_off_result;
-
-           -- 没有新数据跳过
+       
+           -- Skips if there is no new data.
            IF max_off+1 = current_offs THEN
                CONTINUE;
            END IF;
-
-           -- 导入数据
+       
+           -- Imports data.
            EXECUTE FORMAT('
                INSERT INTO %I (%s)
                SELECT %s
@@ -152,8 +150,8 @@ HashData Lightning 支持使用 Kafka FDW 来创建外部表以及导入数据�
                current_offs,
                max_off
            );        
-
-           -- 更新导入进度
+       
+           -- Updates import progress.
            EXECUTE FORMAT('UPDATE %I SET offs = %s WHERE part = %s', import_progress_table_name, max_off + 1, current_part);
        END LOOP;
        
@@ -161,19 +159,19 @@ HashData Lightning 支持使用 Kafka FDW 来创建外部表以及导入数据�
    END;
    $$ LANGUAGE plpgsql;
 
-执行的时候只需要调用这个函数，传入外表名称、目标表名称、需要导入的字段即可，如下：
+When executing the query, call this function, passing in the external table name, target table name, and the fields to be imported. Here is an example:
 
 .. code:: sql
 
    SELECT import_kafka_data('kafka_test', 'dest_table_fdw', ARRAY['some_int', 'some_text', 'some_date', 'some_time']);
 
-定时导入
-~~~~~~~~
+Scheduled import
+~~~~~~~~~~~~~~~~
 
-如果想要一个定时任务后台执行导入数据，可以使用 HashData Lightning 中的 Task 功能（v1.4.0 及之后版本可用），定期执行导入函数。
+To create a scheduled task to import data in the background, you can use the Task feature in HashData Lightning (available from v1.4.0 onwards) to execute the import function periodically.
 
 .. code:: sql
 
    CREATE TASK import_kafka_data schedule '1 seconds' AS $$SELECT import_kafka_data('kafka_test', 'dest_table_fdw', ARRAY['some_int', 'some_text', 'some_date', 'some_time']);$$;
 
-在上面的例子中，每秒调度一次导入数据的函数，这样就可以基本实现不间断的使用 FDW，将源外表中的数据导入到目标表中。
+In the example above, the function to import data is called every second. This setup allows for the continuous use of Kafka FDW to import data from the source external table into the target table.

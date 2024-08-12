@@ -11,10 +11,10 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.append('.')
 
-project = 'HashData Lightning Web Platform Documentation'
+project = 'HashData Lightning Documentation'
 copyright = '2024, HashData'
 author = 'HashData'
-release = 'v1.5.4'
+release = 'v1.6.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -43,48 +43,7 @@ autosectionlabel_prefix_document = True
 
 # Required theme setup
 html_theme = "sphinx_rtd_theme"
-# html_logo = './images/hashdata-logo.png'
 
-# html_theme_options = {
-#     # Note how we can include links:
-#     "banner_text": 'This is a <a href="https://docs.hashdata.xyz/docs">HashData</a> product.',
-#     "show_theme_credit": False
-# }
-
-# # Set link name generated in the top bar.
-# html_title = 'HashData Lightning 用户文档'
-
-# # Material theme options (see theme.conf for more information)
-# html_theme_options = {
-
-#     # Set the name of the project to appear in the navigation.
-#     'nav_title': 'HashData Lightning 用户文档',
-
-#     # Specify a base_url used to generate sitemap.xml. If not
-#     # specified, then no sitemap will be built.
-#     #'base_url': 'https://project.github.io/project',
-
-#     # Set the color and the accent color
-#     'color_primary': 'blue',
-#     'color_accent': 'light-blue',
-
-#     # Set the repo location to get a badge with stats
-#     'repo_url': 'https://github.com/TomShawn/sphinx-trial-docs/',
-#     'repo_name': 'sphinx-trial-docs',
-
-#     # Visible levels of the global TOC; -1 means unlimited
-#     'globaltoc_depth': 3,
-#     # If False, expand all TOC entries
-#     'globaltoc_collapse': False,
-#     # If True, show hidden TOC entries
-#     'globaltoc_includehidden': True,
-# }
-
-# html_theme_path = sphinx_material.html_theme_path()
-# html_context = sphinx_material.get_html_context()
-# html_sidebars = {
-#     "**": ["logo-text.html", "globaltoc.html", "localtoc.html", "searchbox.html"]
-# }
 
 # -- PDF/LaTeX configuration ---------------------------------------------------
 
@@ -101,17 +60,46 @@ latex_elements = {
 \usepackage{titlesec}
 \usepackage{tocloft}
 % \newcommand{\sectionbreak}{\clearpage}
+\usepackage[none]{hyphenat}
 \renewcommand{\cftsecnumwidth}{2.5em}
 \renewcommand{\cftsubsecnumwidth}{3.5em}
 \renewcommand{\cftsubsubsecnumwidth}{4.5em}
 
-% \titleformat{\chapter}[block]{\LARGE\bfseries}{\thechapter}{1em}{}
-% \titleformat{\section}[block]{\Large\bfseries}{\thesection}{1em}{}
-% \titleformat{\subsection}[block]{\large\bfseries}{\thesubsection}{1em}{}
-% \titleformat{\subsubsection}[block]{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 \usepackage[document]{ragged2e}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\setlength{\headheight}{24pt}  % 调整页眉高度
+\fancyhf{}  % 清除默认的页眉和页脚
+
+% 设置页眉和页脚
+\fancyhead[R]{\rightmark}  % 页眉右侧显示文档名或章节标题
+\fancyfoot[L]{\leftmark}  % 页脚左侧显示章节标题
+\fancyfoot[R]{\thepage}  % 页脚右侧显示页码
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% 确保所有页面都使用统一的页眉和页脚设置，包括 plain 页面样式
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyhead[R]{\rightmark}  % 页眉右侧显示文档名或章节标题
+    \fancyfoot[L]{\leftmark}  % 页脚左侧显示章节标题
+    \fancyfoot[R]{\thepage}  % 页脚右侧显示页码
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0pt}
+}
+
+% 确保所有页面都使用统一的页眉设置
+\makeatletter
+\let\ps@plain\ps@fancy  % 确保 plain 页面样式与 fancy 一致
+\@ifundefined{if@twoside}{\newif\if@twoside}
+\@twosidefalse
+\makeatother
+
+% 调整章节标题格式，防止页眉和章节标题重叠
 \usepackage{titlesec}
 
 % 设置一级标题（section）带有序号
@@ -126,6 +114,16 @@ latex_elements = {
 % 取消三级以下标题的序号
 \setcounter{secnumdepth}{1}
 
+% 设置 chapter 标题居中，并使用“第 X 章”格式
+\titleformat{\chapter}[display]
+{\normalfont\Huge\bfseries\centering}{Chapter \thechapter}{60pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{50pt}{40pt}
+
+% 自定义章节标题格式
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{#1}}
+
+
 % Custom LaTeX preamble
 \usepackage{etoolbox}
 \makeatletter
@@ -138,5 +136,10 @@ latex_elements = {
 \makeatother
 
 \usepackage{multirow}
+
+\usepackage{enumitem}
+\setlist[itemize,1]{label=\textbullet} % 一级无序列表符号为实心圆点
+\setlist[itemize,2]{label=\(\circ\)}   % 二级无序列表符号为空心小圆点
+
 '''
 }
