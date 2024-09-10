@@ -1,7 +1,0 @@
-sphinx==7.3.7
-sphinx_rtd_theme
-sphinx_markdown_tables
-sphinx_material
-myst_parser
-rst2pdf
-sphinx-tabs
