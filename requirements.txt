@@ -5,3 +5,4 @@ sphinx_material
 myst_parser
 rst2pdf
 sphinx-tabs
+docxbuilder
